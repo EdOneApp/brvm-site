@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obligations — BRVM Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="ticker" id="ticker"><div class="ticker-track"><span class="ticker-item">Chargement…</span></div></div>
+  <div class="wrap topbar">
+    <a href="index.html" class="brand"><span class="dot"></span><div>BRVM Live<small>Marché régional UEMOA</small></div></a>
+    <nav class="nav">
+      <a href="index.html" data-page="index.html">Tableau de bord</a>
+      <a href="actions.html" data-page="actions.html">Actions</a>
+      <a href="obligations.html" data-page="obligations.html">Obligations</a>
+      <a href="indices.html" data-page="indices.html">Indices</a>
+      <a href="bons-plans.html" data-page="bons-plans.html">Bons plans</a>
+      <a href="lexique.html" data-page="lexique.html">Lexique</a>
+      <a href="portefeuille.html" data-page="portefeuille.html">Mon portefeuille</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero" style="padding-bottom:10px;">
+    <span class="eyebrow" id="countLabel">Emprunts obligataires</span>
+    <h1 style="font-size:2rem;">Obligations</h1>
+    <p class="lead">Emprunts d'État, institutions régionales et titrisations (FCTC) cotés à la BRVM. Le type est déduit du préfixe du code — voir le <a href="lexique.html" style="color:var(--gold)">lexique</a> pour le détail des sigles.</p>
+  </div>
+
+  <div class="filters">
+    <input type="search" id="search" placeholder="Rechercher un code ou un émetteur…">
+    <button class="chip active" data-filter="all">Tous</button>
+    <button class="chip" data-filter="etat">État / Trésor</button>
+    <button class="chip" data-filter="titrisation">Titrisation (FCTC)</button>
+    <button class="chip" data-filter="institution">Institution régionale</button>
+  </div>
+
+  <div class="table-shell">
+    <table class="data" id="oblTable">
+      <thead><tr>
+        <th data-key="code">Code</th>
+        <th data-key="nom">Emprunt</th>
+        <th data-key="type">Type</th>
+        <th data-key="dateEmission">Émission</th>
+        <th data-key="cours" class="num">Cours (val. 10 000)</th>
+        <th data-key="couponCouru" class="num">Coupon couru</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="disclaimer">Cours différés de 15 minutes. Source : brvm.org. Informations générales, ne constitue pas un conseil en investissement.</div>
+  </div>
+</footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/data-seed.js"></script>
+<script src="assets/drive-client.js"></script>
+<script src="assets/app.js"></script>
+<script>
+BRVM.markActiveNav();
+window.BRVM_DATA_READY.then(data => {
+  const actions = BRVM.actionsAsArray(data);
+  BRVM.renderTicker(document.getElementById('ticker'), actions.slice().sort((a,b)=>b.history.at(-1).variation-a.history.at(-1).variation));
+
+  const obligations = BRVM.obligationsAsArray(data);
+  document.getElementById('countLabel').textContent = `${obligations.length} emprunts obligataires`;
+
+  function typeKey(code) {
+    if (/^(EO|TP|SUK)/.test(code)) return 'etat';
+    if (/^F/.test(code)) return 'titrisation';
+    return 'institution';
+  }
+  const typeLabel = { etat: 'État / Trésor public', titrisation: 'Titrisation (FCTC)', institution: 'Institution régionale' };
+
+  const rows = obligations.map(o => {
+    const l = o.history.at(-1);
+    const tk = typeKey(o.code);
+    return { code: o.code, nom: o.nom, type: typeLabel[tk], typeKey: tk, dateEmission: o.dateEmission, cours: l.cours, couponCouru: l.couponCouru };
+  });
+
+  function renderRow(r) {
+    const tagCls = r.typeKey === 'etat' ? 'tag-gold' : r.typeKey === 'titrisation' ? 'tag-lagoon' : 'tag-nul';
+    return `<tr onclick="location.href='detail.html?type=obligation&code=${encodeURIComponent(r.code)}'">
+      <td><span class="code-badge">${r.code}</span></td>
+      <td class="name-cell">${r.nom}</td>
+      <td><span class="tag ${tagCls}">${r.type}</span></td>
+      <td class="num">${r.dateEmission}</td>
+      <td class="num">${BRVM.fmtFCFA(r.cours)}</td>
+      <td class="num">${BRVM.fmtNum(r.couponCouru,2)}</td>
+    </tr>`;
+  }
+
+  const sortable = BRVM.makeSortableTable({
+    tableEl: document.getElementById('oblTable'),
+    rows, columns: [1,2,3,4,5,6],
+    renderRow, initialSort: { key: 'code', dir: 'asc' }
+  });
+
+  let currentChip = 'all';
+  document.getElementById('search').addEventListener('input', e => applyFilters(e.target.value.trim().toLowerCase(), currentChip));
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      currentChip = chip.dataset.filter;
+      applyFilters(document.getElementById('search').value.trim().toLowerCase(), currentChip);
+    });
+  });
+  function applyFilters(q, chip) {
+    sortable.setFilter(r => {
+      const matchQ = !q || r.code.toLowerCase().includes(q) || r.nom.toLowerCase().includes(q);
+      const matchChip = chip==='all' || r.typeKey===chip;
+      return matchQ && matchChip;
+    });
+  }
+});
+</script>
+</body>
+</html>

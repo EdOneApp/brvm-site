@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bons plans du jour — BRVM Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="ticker" id="ticker"><div class="ticker-track"><span class="ticker-item">Chargement…</span></div></div>
+  <div class="wrap topbar">
+    <a href="index.html" class="brand"><span class="dot"></span><div>BRVM Live<small>Marché régional UEMOA</small></div></a>
+    <nav class="nav">
+      <a href="index.html" data-page="index.html">Tableau de bord</a>
+      <a href="actions.html" data-page="actions.html">Actions</a>
+      <a href="obligations.html" data-page="obligations.html">Obligations</a>
+      <a href="indices.html" data-page="indices.html">Indices</a>
+      <a href="bons-plans.html" data-page="bons-plans.html">Bons plans</a>
+      <a href="lexique.html" data-page="lexique.html">Lexique</a>
+      <a href="portefeuille.html" data-page="portefeuille.html">Mon portefeuille</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero" style="padding-bottom:10px;">
+    <span class="eyebrow">Score indicatif · 100% calculé, 0% conseil</span>
+    <h1 style="font-size:2rem;">Bons plans du jour</h1>
+    <p class="lead">Un classement des actions calculé à partir de trois signaux publics du jour. Ce n'est ni une recommandation d'achat, ni un signal fiable à lui seul : c'est un point de départ pour votre propre analyse.</p>
+  </div>
+
+  <div class="card" style="margin-bottom:24px;">
+    <h2 style="font-size:1.05rem;margin-bottom:12px;">Méthodologie — 100% transparente</h2>
+    <div class="card-grid">
+      <div>
+        <b style="color:var(--gold)">50% · Valorisation (PER)</b>
+        <p style="color:var(--text-dim);font-size:.88rem;margin:6px 0 0;">Un PER faible (proche de 5) obtient un score élevé, un PER élevé (proche de 40) un score faible. Sans PER connu (bénéfice négatif ou non publié), le score est neutre (50/100).</p>
+      </div>
+      <div>
+        <b style="color:var(--lagoon)">30% · Dynamique du jour</b>
+        <p style="color:var(--text-dim);font-size:.88rem;margin:6px 0 0;">La variation du jour, entre -5% (score 0) et +5% (score 100). Signal de très court terme uniquement — à prendre avec prudence.</p>
+      </div>
+      <div>
+        <b style="color:var(--up)">20% · Liquidité</b>
+        <p style="color:var(--text-dim);font-size:.88rem;margin:6px 0 0;">Part du titre dans la valeur totale échangée ce jour. Un titre liquide est plus facile à acheter/revendre sans faire bouger son cours.</p>
+      </div>
+    </div>
+    <div class="banner warn" style="margin-top:16px;margin-bottom:0;">⚠️ <div><b>Limite majeure aujourd'hui :</b> nous n'avons qu'un instantané d'une seule séance. Ce score deviendra bien plus pertinent une fois l'historique Drive alimenté sur plusieurs semaines (tendances, moyennes mobiles, volatilité réelle) — voir le README du dépôt pour l'activer.</div></div>
+  </div>
+
+  <div class="table-shell">
+    <div id="scoreList"></div>
+  </div>
+
+  <section class="section">
+    <div class="section-head"><h2>Ce que ce score ne mesure PAS</h2></div>
+    <div class="card-grid">
+      <div class="card"><b>Dividendes</b><p style="color:var(--text-dim);font-size:.88rem;margin-top:6px;">Le rendement (dividende/cours) n'est pas publié dans les données de séance — consultez les rapports des sociétés cotées.</p></div>
+      <div class="card"><b>Qualité du bilan</b><p style="color:var(--text-dim);font-size:.88rem;margin-top:6px;">Dette, trésorerie, croissance du chiffre d'affaires : à analyser via les rapports financiers officiels.</p></div>
+      <div class="card"><b>Tendance de fond</b><p style="color:var(--text-dim);font-size:.88rem;margin-top:6px;">Une seule séance ne dit rien d'une tendance — patience le temps que l'historique se construise.</p></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap"><div class="disclaimer">⚠️ Ceci n'est pas un conseil en investissement. Consultez une SGI agréée avant toute décision d'investissement.</div></div>
+</footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/data-seed.js"></script>
+<script src="assets/drive-client.js"></script>
+<script src="assets/app.js"></script>
+<script>
+BRVM.markActiveNav();
+window.BRVM_DATA_READY.then(data => {
+  const actions = BRVM.actionsAsArray(data);
+  BRVM.renderTicker(document.getElementById('ticker'), actions.slice().sort((a,b)=>b.history.at(-1).variation-a.history.at(-1).variation));
+
+  const scored = actions.map(a => ({ a, s: BRVM.computeOpportunityScore(a) })).sort((x,y) => y.s.score - x.s.score);
+
+  document.getElementById('scoreList').innerHTML = scored.map((row, i) => {
+    const { a, s } = row;
+    const last = a.history.at(-1);
+    return `<div class="score-row" onclick="location.href='detail.html?type=action&code=${a.code}'" style="cursor:pointer;">
+      <div class="rank">#${i+1}</div>
+      <div>
+        <div><span class="code-badge">${a.code}</span> <span style="color:var(--text-dim);font-size:.85rem;">${a.nom}</span></div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:${s.score}%"></div></div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:4px;">Valorisation ${s.scoreVal} · Dynamique ${s.scoreMomentum} · Liquidité ${s.scoreLiquidite}</div>
+      </div>
+      <div class="num" style="text-align:right;">
+        <div style="font-size:1.1rem;font-weight:600;">${BRVM.fmtNum(last.cours)} FCFA</div>
+        <div class="${BRVM.pctClass(last.variation)}">${BRVM.arrow(last.variation)} ${BRVM.fmtPct(last.variation)}</div>
+      </div>
+      <div class="num" style="text-align:right;font-family:var(--font-display);font-weight:700;font-size:1.4rem;color:var(--gold);">${s.score}</div>
+    </div>`;
+  }).join('');
+});
+</script>
+</body>
+</html>
