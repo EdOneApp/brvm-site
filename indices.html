@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indices — BRVM Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="ticker" id="ticker"><div class="ticker-track"><span class="ticker-item">Chargement…</span></div></div>
+  <div class="wrap topbar">
+    <a href="index.html" class="brand"><span class="dot"></span><div>BRVM Live<small>Marché régional UEMOA</small></div></a>
+    <nav class="nav">
+      <a href="index.html" data-page="index.html">Tableau de bord</a>
+      <a href="actions.html" data-page="actions.html">Actions</a>
+      <a href="obligations.html" data-page="obligations.html">Obligations</a>
+      <a href="indices.html" data-page="indices.html">Indices</a>
+      <a href="bons-plans.html" data-page="bons-plans.html">Bons plans</a>
+      <a href="lexique.html" data-page="lexique.html">Lexique</a>
+      <a href="portefeuille.html" data-page="portefeuille.html">Mon portefeuille</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero" style="padding-bottom:10px;">
+    <span class="eyebrow">4 indices principaux · 7 indices sectoriels · 1 indice total return</span>
+    <h1 style="font-size:2rem;">Indices BRVM</h1>
+    <p class="lead">BRVM Composite regroupe l'ensemble des sociétés cotées ; BRVM 30 suit les 30 valeurs les plus liquides ; BRVM Prestige regroupe les sociétés répondant à des critères renforcés de gouvernance et de liquidité.</p>
+  </div>
+
+  <section class="section" style="padding-top:0;">
+    <div class="section-head"><h2>Indices principaux</h2></div>
+    <div class="card-grid" id="mainGrid"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Indices sectoriels</h2><div class="desc">Répartition de la cote par secteur GICS-BRVM</div></div>
+    <div class="table-shell"><table class="data">
+      <thead><tr><th>Secteur</th><th class="num">Clôture</th><th class="num">Var. jour</th><th class="num">Var. YTD</th></tr></thead>
+      <tbody id="sectorBody"></tbody>
+    </table></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Indice Total Return</h2><div class="desc">Performance dividendes réinvestis</div></div>
+    <div class="card-grid" id="trGrid"></div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap"><div class="disclaimer">Cours différés de 15 minutes. Source : brvm.org.</div></div>
+</footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/data-seed.js"></script>
+<script src="assets/drive-client.js"></script>
+<script src="assets/app.js"></script>
+<script>
+BRVM.markActiveNav();
+window.BRVM_DATA_READY.then(data => {
+  const actions = BRVM.actionsAsArray(data);
+  BRVM.renderTicker(document.getElementById('ticker'), actions.slice().sort((a,b)=>b.history.at(-1).variation-a.history.at(-1).variation));
+
+  const idx = BRVM.indicesAsArray(data);
+  const card = i => {
+    const l = i.history.at(-1);
+    return `<a href="detail.html?type=indice&code=${i.code}" class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div style="font-family:var(--font-display);font-weight:600;">${i.nom}</div>
+        <span class="tag ${BRVM.tagClass(l.variation)}">${BRVM.fmtPct(l.variation)}</span>
+      </div>
+      <div class="num" style="font-size:1.8rem;margin-top:12px;">${BRVM.fmtNum(l.cloture,2)}</div>
+      <div style="color:var(--muted);font-size:.8rem;margin-top:6px;">Clôture préc. ${BRVM.fmtNum(l.cloturePrec,2)} · YTD <span class="${BRVM.pctClass(l.ytd)}">${BRVM.fmtPct(l.ytd)}</span></div>
+    </a>`;
+  };
+  document.getElementById('mainGrid').innerHTML = idx.filter(i=>i.categorie==='principal').map(card).join('');
+  document.getElementById('trGrid').innerHTML = idx.filter(i=>i.categorie==='total-return').map(card).join('');
+  document.getElementById('sectorBody').innerHTML = idx.filter(i=>i.categorie==='sectoriel').sort((a,b)=>b.history.at(-1).variation-a.history.at(-1).variation).map(i => {
+    const l = i.history.at(-1);
+    return `<tr onclick="location.href='detail.html?type=indice&code=${i.code}'"><td>${i.nom}</td><td class="num">${BRVM.fmtNum(l.cloture,2)}</td><td class="num ${BRVM.pctClass(l.variation)}">${BRVM.arrow(l.variation)} ${BRVM.fmtPct(l.variation)}</td><td class="num ${BRVM.pctClass(l.ytd)}">${BRVM.fmtPct(l.ytd)}</td></tr>`;
+  }).join('');
+});
+</script>
+</body>
+</html>

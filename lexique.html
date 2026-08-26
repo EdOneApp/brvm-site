@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lexique BRVM — BRVM Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="ticker" id="ticker"><div class="ticker-track"><span class="ticker-item">Chargement…</span></div></div>
+  <div class="wrap topbar">
+    <a href="index.html" class="brand"><span class="dot"></span><div>BRVM Live<small>Marché régional UEMOA</small></div></a>
+    <nav class="nav">
+      <a href="index.html" data-page="index.html">Tableau de bord</a>
+      <a href="actions.html" data-page="actions.html">Actions</a>
+      <a href="obligations.html" data-page="obligations.html">Obligations</a>
+      <a href="indices.html" data-page="indices.html">Indices</a>
+      <a href="bons-plans.html" data-page="bons-plans.html">Bons plans</a>
+      <a href="lexique.html" data-page="lexique.html">Lexique</a>
+      <a href="portefeuille.html" data-page="portefeuille.html">Mon portefeuille</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero" style="padding-bottom:10px;">
+    <span class="eyebrow">Comprendre avant d'investir</span>
+    <h1 style="font-size:2rem;">Lexique BRVM</h1>
+    <p class="lead">Tous les termes techniques utilisés sur ce site et sur les publications officielles de la BRVM.</p>
+  </div>
+  <div class="filters"><input type="search" id="search" placeholder="Rechercher un terme…"></div>
+  <dl class="glossary-grid" id="glossaryGrid"></dl>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap"><div class="disclaimer">Définitions à but pédagogique, simplifiées. Se référer au règlement général de la BRVM/AMF-UMOA pour les définitions réglementaires complètes.</div></div>
+</footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/data-seed.js"></script>
+<script src="assets/drive-client.js"></script>
+<script src="assets/glossary.js"></script>
+<script src="assets/app.js"></script>
+<script>
+BRVM.markActiveNav();
+window.BRVM_DATA_READY.then(data => {
+  const actions = BRVM.actionsAsArray(data);
+  BRVM.renderTicker(document.getElementById('ticker'), actions.slice().sort((a,b)=>b.history.at(-1).variation-a.history.at(-1).variation));
+});
+
+function render(list) {
+  document.getElementById('glossaryGrid').innerHTML = list.map(g => `<div class="glossary-item"><dt>${g.term}</dt><dd>${g.def}</dd></div>`).join('');
+}
+render(window.BRVM_GLOSSARY);
+document.getElementById('search').addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase();
+  render(window.BRVM_GLOSSARY.filter(g => g.term.toLowerCase().includes(q) || g.def.toLowerCase().includes(q)));
+});
+</script>
+</body>
+</html>

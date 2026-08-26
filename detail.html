@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Fiche titre — BRVM Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="ticker" id="ticker"><div class="ticker-track"><span class="ticker-item">Chargement…</span></div></div>
+  <div class="wrap topbar">
+    <a href="index.html" class="brand"><span class="dot"></span><div>BRVM Live<small>Marché régional UEMOA</small></div></a>
+    <nav class="nav">
+      <a href="index.html" data-page="index.html">Tableau de bord</a>
+      <a href="actions.html" data-page="actions.html">Actions</a>
+      <a href="obligations.html" data-page="obligations.html">Obligations</a>
+      <a href="indices.html" data-page="indices.html">Indices</a>
+      <a href="bons-plans.html" data-page="bons-plans.html">Bons plans</a>
+      <a href="lexique.html" data-page="lexique.html">Lexique</a>
+      <a href="portefeuille.html" data-page="portefeuille.html">Mon portefeuille</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="mainContent">
+  <p style="padding-top:30px;color:var(--muted)">Chargement de la fiche…</p>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap"><div class="disclaimer">Cours différés de 15 minutes. Source : brvm.org. Informations générales, ne constitue pas un conseil en investissement.</div></div>
+</footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/data-seed.js"></script>
+<script src="assets/drive-client.js"></script>
+<script src="assets/glossary.js"></script>
+<script src="assets/app.js"></script>
+<script>
+BRVM.markActiveNav();
+
+function glossaryDef(term) {
+  const g = window.BRVM_GLOSSARY.find(g => g.term.toLowerCase().startsWith(term.toLowerCase()));
+  return g ? g.def : "";
+}
+function metricCell(label, value, glossaryTerm) {
+  const title = glossaryTerm ? glossaryDef(glossaryTerm) : "";
+  return `<div class="metric-cell" title="${title.replace(/"/g,'&quot;')}"><div class="l">${label}</div><div class="v">${value}</div></div>`;
+}
+
+window.BRVM_DATA_READY.then(data => {
+  const params = new URLSearchParams(location.search);
+  const type = params.get('type');
+  const code = params.get('code');
+  const actions = BRVM.actionsAsArray(data);
+  BRVM.renderTicker(document.getElementById('ticker'), actions.slice().sort((a,b)=>b.history.at(-1).variation-a.history.at(-1).variation));
+
+  const main = document.getElementById('mainContent');
+  let entity, history, kind;
+
+  if (type === 'action' && data.actions[code]) { entity = data.actions[code]; kind = 'action'; }
+  else if (type === 'obligation' && data.obligations[code]) { entity = data.obligations[code]; kind = 'obligation'; }
+  else if (type === 'indice' && data.indices[code]) { entity = data.indices[code]; kind = 'indice'; }
+
+  if (!entity) {
+    main.innerHTML = `<div style="padding:60px 0;text-align:center;">
+      <h1>Titre introuvable</h1>
+      <p style="color:var(--muted)">Le code « ${code || ''} » ne correspond à aucune valeur BRVM connue.</p>
+      <a href="actions.html" class="btn btn-primary" style="margin-top:16px;">← Retour à la liste des actions</a>
+    </div>`;
+    return;
+  }
+
+  document.getElementById('pageTitle').textContent = `${entity.nom} (${code}) — BRVM Live`;
+  history = entity.history;
+  const last = history[history.length - 1];
+  const first = history[0];
+
+  /* ---------------- ACTION ---------------- */
+  if (kind === 'action') {
+    const perDef = glossaryDef("PER");
+    const capFlottPct = last.capGlob ? (last.capFlott / last.capGlob * 100) : null;
+    main.innerHTML = `
+      <div class="detail-hero">
+        <div>
+          <div class="code-big">ACTION · ${code}</div>
+          <h1>${entity.nom}</h1>
+        </div>
+        <div class="detail-price">
+          <div class="px">${BRVM.fmtNum(last.cours)}<span style="font-size:1rem;color:var(--muted)"> FCFA</span></div>
+          <div class="tag ${BRVM.tagClass(last.variation)}" style="margin-top:6px;">${BRVM.arrow(last.variation)} ${BRVM.fmtPct(last.variation)} aujourd'hui</div>
+        </div>
+      </div>
+
+      <div class="chart-shell" style="margin:20px 0;">
+        <canvas id="chart" height="240"></canvas>
+        <div class="chart-note" id="chartNote"></div>
+      </div>
+
+      <div class="section-head" style="margin-top:10px;"><h2 style="font-size:1.1rem;">Indicateurs clés</h2></div>
+      <div class="metric-grid">
+        ${metricCell("PER", last.per ? BRVM.fmtNum(last.per,2) : "n/d — bénéfices négatifs ou non publiés", "PER")}
+        ${metricCell("Capitalisation globale", BRVM.fmtFCFA(last.capGlob), "Capitalisation boursière globale")}
+        ${metricCell("Capitalisation flottante", BRVM.fmtFCFA(last.capFlott), "Capitalisation flottante")}
+        ${metricCell("Poids dans la cote", BRVM.fmtNum(last.capGlobPct,2)+" %", "Capitalisation boursière globale")}
+        ${metricCell("Flottant estimé", capFlottPct!==null ? BRVM.fmtNum(capFlottPct,1)+" %" : "n/d", "Flottant")}
+        ${metricCell("Titres en circulation", BRVM.fmtNum(last.nbTitres), null)}
+        ${metricCell("Volume échangé (jour)", BRVM.fmtNum(last.volTitres)+" titres", "Volume échangé (titres)")}
+        ${metricCell("Valeur échangée (jour)", BRVM.fmtFCFA(last.volValeur), "Valeur échangée (FCFA)")}
+        ${metricCell("Part de la valeur globale échangée", BRVM.fmtNum(last.volValeurPct,2)+" %", "Liquidité")}
+      </div>
+
+      <div class="section-head" style="margin-top:30px;"><h2 style="font-size:1.1rem;">Calculs dérivés</h2></div>
+      <div class="card-grid">
+        <div class="card"><div class="l" style="color:var(--muted);font-size:.8rem;">Valeur boursière d'1% du capital</div><div class="num" style="font-size:1.3rem;margin-top:6px;">${BRVM.fmtFCFA(last.capGlob/100)}</div></div>
+        <div class="card"><div class="l" style="color:var(--muted);font-size:.8rem;">Prix moyen pondéré de la séance</div><div class="num" style="font-size:1.3rem;margin-top:6px;">${last.volTitres ? BRVM.fmtNum(last.volValeur/last.volTitres,0)+" FCFA" : "n/d"}</div><div style="color:var(--muted);font-size:.72rem;margin-top:4px;">= Valeur échangée ÷ Titres échangés</div></div>
+        <div class="card"><div class="l" style="color:var(--muted);font-size:.8rem;">Bénéfice net par action estimé</div><div class="num" style="font-size:1.3rem;margin-top:6px;">${last.per ? BRVM.fmtNum(last.cours/last.per,0)+" FCFA" : "n/d"}</div><div style="color:var(--muted);font-size:.72rem;margin-top:4px;">= Cours ÷ PER</div></div>
+      </div>
+
+      <div class="banner" style="margin-top:24px;"><span>ℹ️</span><div>Le <b>flottant estimé</b> et le <b>bénéfice net par action</b> sont des calculs dérivés à partir des données publiques du jour, à but pédagogique — ils ne remplacent pas les états financiers audités de la société.</div></div>
+    `;
+    renderHistoryChart(history.map(h => ({ date: h.date, value: h.cours })), '#E0AC4C', 'Cours de clôture (FCFA)');
+  }
+
+  /* ---------------- OBLIGATION ---------------- */
+  if (kind === 'obligation') {
+    const coupon = (entity.nom.match(/(\d+[.,]\d+)\s*%/) || [])[1];
+    const years = entity.nom.match(/(\d{4})-(\d{4})/);
+    main.innerHTML = `
+      <div class="detail-hero">
+        <div>
+          <div class="code-big">OBLIGATION · ${code}</div>
+          <h1>${entity.nom}</h1>
+        </div>
+        <div class="detail-price">
+          <div class="px">${BRVM.fmtNum(last.cours)}<span style="font-size:1rem;color:var(--muted)"> FCFA</span></div>
+          <div style="color:var(--muted);font-size:.85rem;margin-top:6px;">Cours pour une valeur nominale de ${BRVM.fmtNum(last.cours)} FCFA</div>
+        </div>
+      </div>
+
+      <div class="chart-shell" style="margin:20px 0;">
+        <canvas id="chart" height="240"></canvas>
+        <div class="chart-note" id="chartNote"></div>
+      </div>
+
+      <div class="section-head" style="margin-top:10px;"><h2 style="font-size:1.1rem;">Caractéristiques de l'émprunt</h2></div>
+      <div class="metric-grid">
+        ${metricCell("Coupon nominal", coupon ? coupon.replace('.',',')+" %" : "n/d", "Coupon")}
+        ${metricCell("Période", years ? years[1]+" – "+years[2] : "n/d", "Maturité / Échéance")}
+        ${metricCell("Date d'émission", entity.dateEmission, null)}
+        ${metricCell("Coupon couru", BRVM.fmtNum(last.couponCouru,2)+" FCFA", "Coupon couru")}
+        ${metricCell("Dernier paiement", last.dernierPaiementDate, null)}
+        ${metricCell("Valeur du dernier coupon", BRVM.fmtNum(last.dernierPaiementValeur,2)+" FCFA", "Coupon")}
+        ${metricCell("Type d'émetteur", BRVM.obligationType(code), "Emprunt d'État / Trésor public")}
+        ${metricCell("Prix total à payer (pied de coupon + couru)", BRVM.fmtNum(last.cours + last.couponCouru,2)+" FCFA", "Coupon couru")}
+      </div>
+
+      <div class="banner" style="margin-top:24px;"><span>ℹ️</span><div>Le <b>type d'émetteur</b> est déduit automatiquement du préfixe du code (EO/TP/SUK = État, F… = titrisation FCTC, autres = institution régionale). Vérifiez toujours la notice d'émission officielle avant toute décision.</div></div>
+    `;
+    renderHistoryChart(history.map(h => ({ date: h.date, value: h.cours })), '#34C2AC', 'Cours (FCFA)');
+  }
+
+  /* ---------------- INDICE ---------------- */
+  if (kind === 'indice') {
+    main.innerHTML = `
+      <div class="detail-hero">
+        <div>
+          <div class="code-big">INDICE · ${entity.categorie.toUpperCase()}</div>
+          <h1>${entity.nom}</h1>
+        </div>
+        <div class="detail-price">
+          <div class="px">${BRVM.fmtNum(last.cloture,2)}</div>
+          <div class="tag ${BRVM.tagClass(last.variation)}" style="margin-top:6px;">${BRVM.arrow(last.variation)} ${BRVM.fmtPct(last.variation)} aujourd'hui</div>
+        </div>
+      </div>
+
+      <div class="chart-shell" style="margin:20px 0;">
+        <canvas id="chart" height="240"></canvas>
+        <div class="chart-note" id="chartNote"></div>
+      </div>
+
+      <div class="metric-grid">
+        ${metricCell("Clôture précédente", BRVM.fmtNum(last.cloturePrec,2), null)}
+        ${metricCell("Variation du jour", BRVM.fmtPct(last.variation), "Variation du jour")}
+        ${metricCell("Variation YTD", BRVM.fmtPct(last.ytd), "Variation YTD (Year-To-Date)")}
+        ${metricCell("Catégorie", entity.categorie, null)}
+      </div>
+    `;
+    renderHistoryChart(history.map(h => ({ date: h.date, value: h.cloture })), '#4FD497', 'Clôture');
+  }
+
+  function renderHistoryChart(points, color, label) {
+    const canvas = document.getElementById('chart');
+    BRVM.drawLineChart(canvas, points, { color, fill: true, label });
+    const note = document.getElementById('chartNote');
+    if (points.length <= 1) {
+      note.innerHTML = `📈 Un seul point d'historique pour l'instant (premier jour de collecte). Le graphique s'enrichit automatiquement chaque jour ouvré une fois le scraper Google Drive actif — voir le README du dépôt.`;
+    } else {
+      note.innerHTML = `${points.length} séances historisées, du ${points[0].date} au ${points.at(-1).date}.`;
+    }
+    window.addEventListener('resize', () => BRVM.drawLineChart(canvas, points, { color, fill: true, label }));
+  }
+});
+</script>
+</body>
+</html>

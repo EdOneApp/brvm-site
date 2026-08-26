@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon portefeuille — BRVM Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="ticker" id="ticker"><div class="ticker-track"><span class="ticker-item">Chargement…</span></div></div>
+  <div class="wrap topbar">
+    <a href="index.html" class="brand"><span class="dot"></span><div>BRVM Live<small>Marché régional UEMOA</small></div></a>
+    <nav class="nav">
+      <a href="index.html" data-page="index.html">Tableau de bord</a>
+      <a href="actions.html" data-page="actions.html">Actions</a>
+      <a href="obligations.html" data-page="obligations.html">Obligations</a>
+      <a href="indices.html" data-page="indices.html">Indices</a>
+      <a href="bons-plans.html" data-page="bons-plans.html">Bons plans</a>
+      <a href="lexique.html" data-page="lexique.html">Lexique</a>
+      <a href="portefeuille.html" data-page="portefeuille.html">Mon portefeuille</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero" style="padding-bottom:10px;">
+    <span class="eyebrow">Privé · stocké dans VOTRE Google Drive</span>
+    <h1 style="font-size:2rem;">Mon portefeuille</h1>
+    <p class="lead">Suivez une liste de titres. Vos données sont enregistrées dans un fichier privé de votre propre Google Drive (dossier caché de l'application) — ce site n'y a accès qu'une fois que vous vous connectez, et personne d'autre ne peut les voir.</p>
+  </div>
+
+  <div id="authArea" class="card" style="margin-bottom:24px;"></div>
+
+  <div id="portfolioArea" style="display:none;">
+    <div class="section-head">
+      <h2>Ajouter un titre</h2>
+    </div>
+    <div class="filters">
+      <select id="addSelect"></select>
+      <button class="btn btn-primary" id="addBtn">+ Ajouter au portefeuille</button>
+    </div>
+
+    <div class="table-shell" style="margin-top:20px;">
+      <table class="data">
+        <thead><tr><th>Titre</th><th class="num">Cours</th><th class="num">Variation</th><th></th></tr></thead>
+        <tbody id="portfolioBody"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap"><div class="disclaimer">Le portefeuille est une liste de suivi personnelle, pas un compte-titres réel : aucun ordre n'est passé, aucune donnée bancaire n'est demandée.</div></div>
+</footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/data-seed.js"></script>
+<script src="assets/drive-client.js"></script>
+<script src="assets/drive-portfolio.js"></script>
+<script src="assets/app.js"></script>
+<script>
+BRVM.markActiveNav();
+let ALL_DATA = null;
+
+window.BRVM_DATA_READY.then(data => {
+  ALL_DATA = data;
+  const actions = BRVM.actionsAsArray(data);
+  BRVM.renderTicker(document.getElementById('ticker'), actions.slice().sort((a,b)=>b.history.at(-1).variation-a.history.at(-1).variation));
+
+  const addSelect = document.getElementById('addSelect');
+  addSelect.innerHTML = actions.sort((a,b)=>a.code.localeCompare(b.code)).map(a => `<option value="${a.code}">${a.code} — ${a.nom}</option>`).join('');
+
+  setupAuth();
+});
+
+function setupAuth() {
+  const authArea = document.getElementById('authArea');
+  if (!window.BRVM_CONFIG || !window.BRVM_CONFIG.OAUTH_CLIENT_ID) {
+    authArea.innerHTML = `<div class="banner warn">⚠️ <div><b>Connexion Google non configurée.</b> Le propriétaire du site doit renseigner <code>OAUTH_CLIENT_ID</code> dans <code>assets/config.js</code> (voir README, section « Portefeuille personnel »).</div></div>`;
+    return;
+  }
+  authArea.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+    <div><b>Connectez-vous avec Google</b><p style="color:var(--muted);margin:4px 0 0;font-size:.85rem;">Aucune donnée n'est partagée avec ce site en dehors du fichier de portefeuille que vous créez vous-même.</p></div>
+    <button class="btn btn-primary" id="signInBtn">Se connecter avec Google</button>
+  </div>`;
+
+  const tryInit = () => {
+    if (!window.google) { setTimeout(tryInit, 200); return; }
+    DrivePortfolio.init(async (list) => {
+      authArea.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;">
+        <span>✅ Connecté — portefeuille synchronisé avec votre Google Drive.</span>
+        <button class="btn" id="signOutBtn">Se déconnecter</button>
+      </div>`;
+      document.getElementById('signOutBtn').addEventListener('click', () => { DrivePortfolio.signOut(); location.reload(); });
+      document.getElementById('portfolioArea').style.display = 'block';
+      renderPortfolio(list);
+    });
+    document.getElementById('signInBtn').addEventListener('click', () => DrivePortfolio.signIn());
+  };
+  tryInit();
+
+  document.getElementById('addBtn').addEventListener('click', async () => {
+    const code = document.getElementById('addSelect').value;
+    const list = await DrivePortfolio.add({ code, type: 'action', addedAt: new Date().toISOString() });
+    renderPortfolio(list);
+  });
+}
+
+function renderPortfolio(list) {
+  const body = document.getElementById('portfolioBody');
+  if (!list.length) {
+    body.innerHTML = `<tr><td colspan="4" style="padding:24px;text-align:center;color:var(--muted)">Votre portefeuille est vide — ajoutez un titre ci-dessus.</td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map(item => {
+    const a = ALL_DATA.actions[item.code];
+    if (!a) return '';
+    const l = a.history.at(-1);
+    return `<tr>
+      <td onclick="location.href='detail.html?type=action&code=${item.code}'" style="cursor:pointer;"><span class="code-badge">${item.code}</span><br><span class="name-cell">${a.nom}</span></td>
+      <td class="num">${BRVM.fmtNum(l.cours)}</td>
+      <td class="num ${BRVM.pctClass(l.variation)}">${BRVM.arrow(l.variation)} ${BRVM.fmtPct(l.variation)}</td>
+      <td><button class="btn" data-code="${item.code}" onclick="removeItem('${item.code}')">Retirer</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function removeItem(code) {
+  const list = await DrivePortfolio.remove(code);
+  renderPortfolio(list);
+}
+</script>
+</body>
+</html>
