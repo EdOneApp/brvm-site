@@ -195,14 +195,31 @@ window.BRVM_DATA_READY.then(data => {
 
   function renderHistoryChart(points, color, label) {
     const canvas = document.getElementById('chart');
-    BRVM.drawLineChart(canvas, points, { color, fill: true, label });
+    const CHART_HEIGHT = 240;
+    let lastWidth = null;
+    const draw = () => {
+      const w = canvas.getBoundingClientRect().width;
+      // Sur mobile, faire défiler la page déclenche de nombreux évènements
+      // "resize" (barre d'adresse qui se cache/réapparaît) sans que la
+      // LARGEUR ne change réellement : on ignore ces cas pour ne pas
+      // redessiner inutilement pendant le scroll.
+      if (lastWidth !== null && Math.abs(w - lastWidth) < 2) return;
+      lastWidth = w;
+      BRVM.drawLineChart(canvas, points, { color, fill: true, label, height: CHART_HEIGHT });
+    };
+    draw();
     const note = document.getElementById('chartNote');
     if (points.length <= 1) {
       note.innerHTML = `📈 Un seul point d'historique pour l'instant (premier jour de collecte). Le graphique s'enrichit automatiquement chaque jour ouvré une fois le scraper Google Drive actif — voir le README du dépôt.`;
     } else {
       note.innerHTML = `${points.length} séances historisées, du ${points[0].date} au ${points.at(-1).date}.`;
     }
-    window.addEventListener('resize', () => BRVM.drawLineChart(canvas, points, { color, fill: true, label }));
+    // Debounce : on attend que le redimensionnement soit terminé avant de redessiner.
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(draw, 150);
+    });
   }
 });
 </script>

@@ -70,14 +70,22 @@ const BRVM = (function () {
 
   /* --------------------------- Mini line chart -------------------------- */
   // Canvas fait-maison (pas de dépendance CDN). history = [{date, value}]
-  function drawLineChart(canvas, points, { color = "#E0AC4C", fill = true, label = "" } = {}) {
+  function drawLineChart(canvas, points, { color = "#E0AC4C", fill = true, label = "", height = 220 } = {}) {
     if (!canvas || !points || !points.length) return;
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    const W = Math.max(rect.width, 280), H = canvas.height ? canvas.height : 220;
+    const W = Math.max(rect.width, 280);
+    // IMPORTANT : H est TOUJOURS dérivé du paramètre logique `height`, jamais
+    // relu depuis canvas.height — cet attribut est écrasé plus bas par la
+    // valeur en pixels physiques (H * dpr). Le relire ferait grandir le
+    // graphique exponentiellement à chaque redessin (bug observé sur mobile :
+    // le canvas "grandissait à l'infini" au moindre resize pendant le scroll).
+    const H = height;
     canvas.width = W * dpr; canvas.height = H * dpr;
+    canvas.style.width = "100%";
     canvas.style.height = H + "px";
     const ctx = canvas.getContext("2d");
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // annule toute mise à l'échelle précédente avant de rescaler
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, W, H);
 
