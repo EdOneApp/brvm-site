@@ -8,7 +8,7 @@
 window.BRVM_CONFIG = {
   // Clé API Google Cloud (restreinte : API "Google Drive API" uniquement,
   // référents HTTP limités à https://VOTRE-USER.github.io/*)
-  DRIVE_API_KEY: "AIzaSyCJmkLUsK-DIdh1EXDkPT-MGIN4-PwdMpo",
+  DRIVE_API_KEY: "AIzaSyD2_4j5YjvOGlVvIUZshHWyKx0_ZsIeBxQ",
 
   // IDs des 3 fichiers JSON d'historique sur Google Drive (partagés
   // en "Toute personne disposant du lien : Lecteur"). Vide = mode
@@ -23,5 +23,5 @@ window.BRVM_CONFIG = {
   // portefeuille est écrit dans SON PROPRE Drive (fichier privé,
   // appDataFolder) — vos données de marché ne sont jamais mélangées
   // avec celles des visiteurs.
-  OAUTH_CLIENT_ID: "381750769426-i880m899frluukurb4lgv642dq9unnhd.apps.googleusercontent.com"
+  OAUTH_CLIENT_ID: "162483848271-r8nmvb9vk62oqp5c3q2rlrbe5m88h1dr.apps.googleusercontent.com"
 };
