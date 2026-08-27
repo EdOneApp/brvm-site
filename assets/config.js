@@ -13,9 +13,9 @@ window.BRVM_CONFIG = {
   // IDs des 3 fichiers JSON d'historique sur Google Drive (partagés
   // en "Toute personne disposant du lien : Lecteur"). Vide = mode
   // seed uniquement (données du jour, pas d'historique persistant).
-  FILE_ID_ACTIONS: "",
-  FILE_ID_OBLIGATIONS: "",
-  FILE_ID_INDICES: "",
+  FILE_ID_ACTIONS: "18jl7kP2yLK0PnabP28Zy2gyrnZftrVR8",
+  FILE_ID_OBLIGATIONS: "1Hll00dBF5zIvS7M6paVvMGlyPHP7wzbM",
+  FILE_ID_INDICES: "1ouMxPk9YYOqJ_4Z3j_Ea2oXox1EaRAG6",
 
   // Pour la fonctionnalité "Mon portefeuille" (optionnelle, personnelle) :
   // Client ID OAuth 2.0 "Application Web" créé dans Google Cloud Console.
