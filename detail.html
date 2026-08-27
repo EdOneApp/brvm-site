@@ -150,7 +150,7 @@ window.BRVM_DATA_READY.then(data => {
       <div class="metric-grid">
         ${metricCell("Coupon nominal", coupon ? coupon.replace('.',',')+" %" : "n/d", "Coupon")}
         ${metricCell("Période", years ? years[1]+" – "+years[2] : "n/d", "Maturité / Échéance")}
-        ${metricCell("Date d'émission", entity.dateEmission, null)}
+        ${metricCell("Date d'émission", entity.dateEmission || "n/d", null)}
         ${metricCell("Coupon couru", BRVM.fmtNum(last.couponCouru,2)+" FCFA", "Coupon couru")}
         ${metricCell("Dernier paiement", last.dernierPaiementDate, null)}
         ${metricCell("Valeur du dernier coupon", BRVM.fmtNum(last.dernierPaiementValeur,2)+" FCFA", "Coupon")}
@@ -165,10 +165,11 @@ window.BRVM_DATA_READY.then(data => {
 
   /* ---------------- INDICE ---------------- */
   if (kind === 'indice') {
+    const categorie = entity.categorie || 'indice';
     main.innerHTML = `
       <div class="detail-hero">
         <div>
-          <div class="code-big">INDICE · ${entity.categorie.toUpperCase()}</div>
+          <div class="code-big">INDICE · ${categorie.toUpperCase()}</div>
           <h1>${entity.nom}</h1>
         </div>
         <div class="detail-price">
@@ -186,7 +187,7 @@ window.BRVM_DATA_READY.then(data => {
         ${metricCell("Clôture précédente", BRVM.fmtNum(last.cloturePrec,2), null)}
         ${metricCell("Variation du jour", BRVM.fmtPct(last.variation), "Variation du jour")}
         ${metricCell("Variation YTD", BRVM.fmtPct(last.ytd), "Variation YTD (Year-To-Date)")}
-        ${metricCell("Catégorie", entity.categorie, null)}
+        ${metricCell("Catégorie", categorie, null)}
       </div>
     `;
     renderHistoryChart(history.map(h => ({ date: h.date, value: h.cloture })), '#4FD497', 'Clôture');

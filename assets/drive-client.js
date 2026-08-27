@@ -85,13 +85,33 @@
         fetchDriveJson(cfg.FILE_ID_INDICES, cfg.DRIVE_API_KEY)
       ]);
 
+      const mergedActions = mergeSeries(actionsDoc && actionsDoc.series, seed.actions);
+      const mergedObligations = mergeSeries(obligationsDoc && obligationsDoc.series, seed.obligations);
+      const mergedIndices = mergeSeries(indicesDoc && indicesDoc.series, seed.indices);
+
+      // La date/heure affichées dans le bandeau "MAJ" doivent refléter le
+      // dernier point réellement présent dans l'historique fusionné, pas
+      // rester figées sur l'instantané de départ (data-seed.js).
+      const latestDate = Object.values(mergedActions).reduce((max, a) => {
+        const d = a.history.length ? a.history[a.history.length - 1].date : null;
+        return d && d > max ? d : max;
+      }, seed.market.date);
+      const updatedIso = [actionsDoc, obligationsDoc, indicesDoc].map(d => d && d.updated).filter(Boolean).sort().pop();
+      const heure = updatedIso ? updatedIso.slice(11, 16) : seed.market.heure;
+
       const result = {
         source: "drive",
-        updated: [actionsDoc, obligationsDoc, indicesDoc].map(d => d && d.updated).filter(Boolean).sort().pop() || seed.updated,
-        actions: mergeSeries(actionsDoc && actionsDoc.series, seed.actions),
-        obligations: mergeSeries(obligationsDoc && obligationsDoc.series, seed.obligations),
-        indices: mergeSeries(indicesDoc && indicesDoc.series, seed.indices),
-        market: seed.market // le résumé marché du jour reste celui du dernier scrape (voir README pour l'étendre)
+        updated: updatedIso || seed.updated,
+        actions: mergedActions,
+        obligations: mergedObligations,
+        indices: mergedIndices,
+        // ⚠️ Seules la date et l'heure sont recalculées à partir des vraies
+        // données Drive. Les autres agrégats du bandeau (valeur des
+        // transactions, capitalisation totale...) restent ceux du dernier
+        // scrape embarqué dans data-seed.js : le scraper ne les republie pas
+        // encore sur Drive. Voir scripts/scrape_brvm.py (`market_raw`) pour
+        // les y ajouter si besoin.
+        market: { ...seed.market, date: latestDate, heure }
       };
       writeCache(result);
       return result;

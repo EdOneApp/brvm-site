@@ -96,14 +96,20 @@ def upload_json(service, file_id, folder_id, name, payload):
     return new_id
 
 
-def merge_series(existing_series, updates, date_key="date"):
-    """updates: dict code -> {nom, ...fields..., <date_key>: date déjà inclus}"""
+def merge_series(existing_series, updates, date_key="date", sticky_fields=("nom",)):
+    """updates: dict code -> {nom, ...fields..., <date_key>: date déjà inclus}
+    sticky_fields : attributs FIXES du titre (nom, date d'émission, catégorie...)
+    à conserver au niveau du titre plutôt que dans chaque point d'historique."""
     series = existing_series or {}
     for code, entry in updates.items():
-        point = {k: v for k, v in entry.items() if k not in ("nom",)}
+        point = {k: v for k, v in entry.items() if k not in sticky_fields}
         if code not in series:
-            series[code] = {"nom": entry.get("nom", code), "history": []}
-        series[code]["nom"] = entry.get("nom", series[code].get("nom", code))
+            series[code] = {"history": []}
+        for field in sticky_fields:
+            if entry.get(field) is not None:
+                series[code][field] = entry[field]
+            elif field not in series[code]:
+                series[code][field] = code if field == "nom" else None
         history = series[code]["history"]
         # Retire un éventuel point du même jour (ré-exécution du job) puis ajoute
         history = [h for h in history if h.get(date_key) != point.get(date_key)]
@@ -139,13 +145,14 @@ def main():
 
     # ---- obligations ----
     obligations_updates = {
-        code: {"nom": o["nom"], "date": date, "cours": o["cours"], "couponCouru": o["couponCouru"],
-               "dernierPaiementDate": o["dernierPaiementDate"], "dernierPaiementValeur": o["dernierPaiementValeur"]}
+        code: {"nom": o["nom"], "dateEmission": o["dateEmission"], "date": date, "cours": o["cours"],
+               "couponCouru": o["couponCouru"], "dernierPaiementDate": o["dernierPaiementDate"],
+               "dernierPaiementValeur": o["dernierPaiementValeur"]}
         for code, o in snap["obligations"].items()
     }
     file_id = os.environ.get(FILES["obligations"]["env"]) or None
     existing = download_json(service, file_id) if file_id else {"series": {}}
-    existing["series"] = merge_series(existing.get("series"), obligations_updates)
+    existing["series"] = merge_series(existing.get("series"), obligations_updates, sticky_fields=("nom", "dateEmission"))
     existing["updated"] = now_iso
     new_id = upload_json(service, file_id, folder_id, FILES["obligations"]["name"], existing)
     print(f"obligations -> file id: {new_id} ({len(existing['series'])} lignes)")
@@ -158,7 +165,7 @@ def main():
     }
     file_id = os.environ.get(FILES["indices"]["env"]) or None
     existing = download_json(service, file_id) if file_id else {"series": {}}
-    existing["series"] = merge_series(existing.get("series"), indices_updates)
+    existing["series"] = merge_series(existing.get("series"), indices_updates, sticky_fields=("nom", "categorie"))
     existing["updated"] = now_iso
     new_id = upload_json(service, file_id, folder_id, FILES["indices"]["name"], existing)
     print(f"indices -> file id: {new_id} ({len(existing['series'])} indices)")
