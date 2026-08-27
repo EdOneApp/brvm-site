@@ -1,4 +1,4 @@
-name: Mise à jour quotidienne BRVM → Google Drive
+name: Mise à jour quotidienne BRVM → Google Drive V2
 
 on:
   schedule:
@@ -24,7 +24,9 @@ jobs:
 
       - name: Scrape brvm.org + mise à jour de l'historique Drive
         env:
-          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
+          GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
+          GOOGLE_OAUTH_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH_REFRESH_TOKEN }}
           DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID }}
           DRIVE_FILE_ID_ACTIONS: ${{ secrets.DRIVE_FILE_ID_ACTIONS }}
           DRIVE_FILE_ID_OBLIGATIONS: ${{ secrets.DRIVE_FILE_ID_OBLIGATIONS }}

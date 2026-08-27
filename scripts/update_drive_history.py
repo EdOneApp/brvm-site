@@ -6,9 +6,14 @@ Ajoute l'instantané du jour (produit par scrape_brvm.py) à l'historique
 stocké sur Google Drive, dans 3 fichiers JSON :
   history_actions.json, history_obligations.json, history_indices.json
 
-Écrit avec un COMPTE DE SERVICE (aucune interaction humaine), dont la
-clé est fournie via la variable d'environnement GOOGLE_SERVICE_ACCOUNT_JSON
-(un secret GitHub Actions — jamais commité dans le dépôt).
+IMPORTANT — authentification par compte utilisateur (pas compte de
+service) : depuis 2025, Google interdit aux comptes de service d'écrire
+dans un Drive personnel (erreur "storageQuotaExceeded"), sauf Shared
+Drive (Google Workspace payant). Ce script agit donc directement AU NOM
+de votre compte Google personnel, via un "refresh token" OAuth généré
+une seule fois (voir README, section 2 — OAuth Playground). Ce jeton est
+fourni via 3 variables d'environnement (secrets GitHub) :
+  GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GOOGLE_OAUTH_REFRESH_TOKEN
 
 Comportement :
   - Si les IDs de fichiers ne sont pas fournis (première exécution),
@@ -28,7 +33,7 @@ import sys
 import json
 import datetime
 
-from google.oauth2 import service_account
+import google.oauth2.credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 
@@ -42,11 +47,23 @@ FILES = {
 
 
 def get_service():
-    raw = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
-    if not raw:
-        sys.exit("ERREUR : variable d'environnement GOOGLE_SERVICE_ACCOUNT_JSON manquante.")
-    info = json.loads(raw)
-    creds = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
+    client_id = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
+    client_secret = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
+    refresh_token = os.environ.get("GOOGLE_OAUTH_REFRESH_TOKEN")
+    if not (client_id and client_secret and refresh_token):
+        sys.exit(
+            "ERREUR : GOOGLE_OAUTH_CLIENT_ID / GOOGLE_OAUTH_CLIENT_SECRET / "
+            "GOOGLE_OAUTH_REFRESH_TOKEN manquants. Voir README, section 2 "
+            "(OAuth Playground) pour les obtenir."
+        )
+    creds = google.oauth2.credentials.Credentials(
+        token=None,
+        refresh_token=refresh_token,
+        client_id=client_id,
+        client_secret=client_secret,
+        token_uri="https://oauth2.googleapis.com/token",
+        scopes=SCOPES,
+    )
     return build("drive", "v3", credentials=creds)
 
 

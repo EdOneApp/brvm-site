@@ -23,5 +23,5 @@ window.BRVM_CONFIG = {
   // portefeuille est écrit dans SON PROPRE Drive (fichier privé,
   // appDataFolder) — vos données de marché ne sont jamais mélangées
   // avec celles des visiteurs.
-  OAUTH_CLIENT_ID: ""
+  OAUTH_CLIENT_ID: "381750769426-i880m899frluukurb4lgv642dq9unnhd.apps.googleusercontent.com"
 };
