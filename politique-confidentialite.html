@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Politique de confidentialité — BRVM Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .legal { max-width: 780px; margin: 0 auto; padding: 40px 0 80px; }
+  .legal h1 { font-size: 1.9rem; margin-bottom: 6px; }
+  .legal .updated { color: var(--muted); font-size: .85rem; margin-bottom: 32px; }
+  .legal h2 { font-size: 1.15rem; margin-top: 34px; color: var(--gold); }
+  .legal p, .legal li { color: var(--text-dim); font-size: .94rem; line-height: 1.7; }
+  .legal ul { padding-left: 20px; }
+  .legal table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: .88rem; }
+  .legal th, .legal td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text-dim); }
+  .legal th { color: var(--text); font-family: var(--font-display); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap topbar">
+    <a href="index.html" class="brand"><span class="dot"></span><div>BRVM Live<small>Marché régional UEMOA</small></div></a>
+    <nav class="nav">
+      <a href="index.html" data-page="index.html">Tableau de bord</a>
+      <a href="actions.html" data-page="actions.html">Actions</a>
+      <a href="obligations.html" data-page="obligations.html">Obligations</a>
+      <a href="indices.html" data-page="indices.html">Indices</a>
+      <a href="bons-plans.html" data-page="bons-plans.html">Bons plans</a>
+      <a href="lexique.html" data-page="lexique.html">Lexique</a>
+      <a href="portefeuille.html" data-page="portefeuille.html">Mon portefeuille</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="legal">
+    <h1>Politique de confidentialité</h1>
+    <div class="updated">Dernière mise à jour : 27 août 2026</div>
+
+    <p>BRVM Live (« le site », « nous ») est un tableau de bord non-officiel présentant des données
+    publiques de la Bourse Régionale des Valeurs Mobilières (BRVM). Cette page explique quelles données
+    sont traitées, comment, et pourquoi — en particulier dans le cadre de la connexion Google proposée sur
+    la page « Mon portefeuille ».</p>
+
+    <h2>1. Ce que nous ne faisons jamais</h2>
+    <ul>
+      <li>Nous ne demandons ni ne stockons de mot de passe, coordonnées bancaires ou pièce d'identité.</li>
+      <li>Nous ne plaçons pas de cookies publicitaires et n'affichons aucune publicité.</li>
+      <li>Nous ne vendons, ne louons et ne partageons aucune donnée personnelle avec un tiers.</li>
+      <li>Nous n'avons accès à aucune donnée de votre compte Google en dehors de ce que vous autorisez
+      explicitement (voir section 3).</li>
+    </ul>
+
+    <h2>2. Navigation sans compte (usage normal du site)</h2>
+    <p>Consulter les cours, indices, fiches de titres, le lexique ou la sélection « Bons plans » ne
+    nécessite aucune connexion et ne transmet aucune donnée personnelle. Le site utilise uniquement :</p>
+    <ul>
+      <li><b>Le stockage local du navigateur (localStorage)</b> : une copie technique des données de marché
+      est mise en cache 10 minutes sur votre appareil, uniquement pour accélérer le chargement des pages.
+      Rien n'est envoyé à un serveur nous appartenant.</li>
+      <li><b>Google Drive, en lecture seule</b> : les pages de cotation interrogent directement l'API
+      Google Drive pour lire 3 fichiers publics d'historique de marché (aucune authentification requise,
+      aucune donnée vous concernant n'est transmise dans cette requête).</li>
+    </ul>
+
+    <h2>3. Fonctionnalité « Mon portefeuille » (connexion Google, optionnelle)</h2>
+    <p>Si vous choisissez de vous connecter avec votre compte Google sur la page « Mon portefeuille »,
+    vous autorisez ce site à accéder uniquement au scope Google suivant :</p>
+    <table>
+      <tr><th>Scope demandé</th><th>Ce qu'il permet</th></tr>
+      <tr><td><code>drive.appdata</code></td><td>Créer et modifier <b>un seul fichier</b>, dans un dossier
+      caché de votre propre Google Drive, invisible ailleurs dans votre Drive et inaccessible à toute autre
+      application. Ce fichier contient uniquement la liste des codes de titres BRVM que vous choisissez de
+      suivre.</td></tr>
+    </table>
+    <p>Ce scope <b>ne donne accès</b> à aucun autre fichier, dossier, photo, e-mail ou document de votre
+    compte Google. Nous ne recevons jamais ce fichier sur nos propres serveurs : toutes les lectures et
+    écritures se font directement entre votre navigateur et les serveurs Google, avec un jeton
+    d'autorisation que Google gère (voir la <a href="https://policies.google.com/privacy" target="_blank"
+    rel="noopener" style="color:var(--gold)">politique de confidentialité de Google</a> pour le
+    fonctionnement côté Google).</p>
+    <p>Vous pouvez révoquer cet accès à tout moment :</p>
+    <ul>
+      <li>Depuis le site : bouton « Se déconnecter » sur la page « Mon portefeuille ».</li>
+      <li>Depuis votre compte Google : <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener" style="color:var(--gold)">myaccount.google.com/permissions</a>.</li>
+    </ul>
+
+    <h2>4. Données de marché affichées</h2>
+    <p>Les cours, indices et informations obligataires proviennent des pages publiques de
+    <a href="https://www.brvm.org" target="_blank" rel="noopener" style="color:var(--gold)">brvm.org</a>,
+    collectés automatiquement puis republiés sous forme de fichiers JSON publics sur Google Drive. Ces
+    fichiers ne contiennent que des données de marché — aucune donnée personnelle.</p>
+
+    <h2>5. Mesure d'audience</h2>
+    <p>Ce site n'utilise, à ce jour, aucun outil d'analyse d'audience tiers (pas de Google Analytics, pas de
+    pixel de suivi). Si cela venait à changer, cette page serait mise à jour en conséquence avant toute
+    mise en service.</p>
+
+    <h2>6. Sécurité</h2>
+    <p>La clé d'accès publique utilisée pour lire les fichiers Drive de marché est restreinte par Google à
+    l'API Google Drive et au domaine de ce site : elle ne permet ni écriture, ni lecture d'autre chose que
+    les fichiers de marché rendus publics volontairement par l'éditeur du site.</p>
+
+    <h2>7. Contact</h2>
+    <p>Pour toute question relative à cette politique ou pour exercer vos droits sur vos données (accès,
+    suppression), écrivez à : <b>edoneapp@gmail.com</b>.</p>
+
+    <h2>8. Modifications</h2>
+    <p>Cette politique peut être mise à jour ; la date en haut de page reflète la dernière modification.
+    Un usage continu du site après une mise à jour vaut acceptation de la nouvelle version.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="disclaimer">BRVM Live n'est pas affilié à la Bourse Régionale des Valeurs Mobilières. Voir aussi les <a href="conditions-utilisation.html" style="color:var(--gold)">conditions d'utilisation</a>.</div>
+  </div>
+</footer>
+
+<script src="assets/app.js"></script>
+<script>BRVM.markActiveNav();</script>
+</body>
+</html>
