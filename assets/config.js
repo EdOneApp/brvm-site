@@ -8,7 +8,7 @@
 window.BRVM_CONFIG = {
   // Clé API Google Cloud (restreinte : API "Google Drive API" uniquement,
   // référents HTTP limités à https://VOTRE-USER.github.io/*)
-  DRIVE_API_KEY: "AIzaSyD2_4j5YjvOGlVvIUZshHWyKx0_ZsIeBxQ",
+  DRIVE_API_KEY: "AIzaSyCJmkLUsK-DIdh1EXDkPT-MGIN4-PwdMpo",
 
   // IDs des 3 fichiers JSON d'historique sur Google Drive (partagés
   // en "Toute personne disposant du lien : Lecteur"). Vide = mode
