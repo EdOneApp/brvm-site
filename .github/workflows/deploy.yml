@@ -1,11 +1,19 @@
-name: Mise à jour quotidienne BRVM → Google Drive
+name: Mise à jour BRVM → Google Drive
 
 on:
   schedule:
-    # 17:15 UTC = ~17:15/18:15 heure d'Abidjan selon la saison — après la
-    # clôture de séance (16h30 heure d'Abidjan). Ajustez si besoin.
-    - cron: "15 17 * * 1-5"
+    # Toutes les heures, tous les jours. Ajustez si vous voulez limiter aux
+    # heures/jours de séance (ex. "0 8-18 * * 1-5" pour 8h-18h UTC, lun-ven).
+    - cron: "0 * * * *"
+  push:
+    branches: [main]   # se relance aussi à chaque déploiement (push sur main)
   workflow_dispatch: {}   # permet de le lancer manuellement depuis l'onglet Actions
+
+# Évite que deux exécutions se marchent dessus si un push arrive pendant un
+# cycle horaire (les deux écriraient sur les mêmes fichiers Drive en même temps).
+concurrency:
+  group: brvm-drive-update
+  cancel-in-progress: false
 
 jobs:
   update:
