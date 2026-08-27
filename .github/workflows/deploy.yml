@@ -1,4 +1,4 @@
-name: Mise à jour quotidienne BRVM → Google Drive V2
+name: Mise à jour quotidienne BRVM → Google Drive
 
 on:
   schedule:
