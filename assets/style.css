@@ -147,6 +147,12 @@ table.data tbody tr:hover td:first-child{ background:var(--surface-2); }
 .name-cell{ color:var(--text-dim); font-size:.82rem; max-width:260px; overflow:hidden; text-overflow:ellipsis; }
 .code-badge{ font-family:var(--font-mono); font-weight:700; color:var(--gold); letter-spacing:.02em; }
 
+/* Conteneur visuellement identique à .table-shell, pour du contenu qui n'est
+   PAS un tableau HTML (ex. la liste "Bons plans", faite de lignes en grille
+   CSS) : garde le même style de boîte mais n'est jamais masqué sur mobile,
+   contrairement à .table-shell qui bascule vers .mobile-cards. */
+.list-shell{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+
 /* ---------------- Cartes mobiles (remplacent les tableaux < 720px) ---------------- */
 /* Desktop : tableau visible, cartes cachées. Mobile : l'inverse. Les deux sont
    remplies avec les mêmes données au même moment (voir app.js /
@@ -239,6 +245,14 @@ table.data tbody tr:hover td:first-child{ background:var(--surface-2); }
      horizontal nécessaire, toutes les infos restent visibles empilées. */
   .table-shell{ display:none; }
   .mobile-cards{ display:grid; grid-template-columns:1fr; gap:12px; }
+
+  /* Ligne "Bons plans" : passe de 4 colonnes en ligne à un empilement lisible,
+     sans jamais masquer d'information (rang, score, prix restent tous visibles). */
+  .score-row{ grid-template-columns:1fr auto; row-gap:8px; }
+  .score-row .rank{ grid-column:1; }
+  .score-row > div:nth-child(2){ grid-column:1 / -1; order:3; }
+  .score-row .num:nth-child(3){ order:1; text-align:left; }
+  .score-row .num:last-child{ order:2; }
 }
 
 @media (max-width: 420px){
