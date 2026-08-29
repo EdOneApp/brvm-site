@@ -1,0 +1,33 @@
+name: Rapport Telegram — Clôture BRVM
+
+on:
+  schedule:
+    # La BRVM ferme vers 16h30 heure d'Abidjan (UTC+0, pas de décalage
+    # saisonnier). On envoie le rapport à 16h45 UTC pour laisser le temps
+    # aux dernières données de séance d'être publiées sur brvm.org.
+    # Jours ouvrés uniquement (lundi à vendredi).
+    - cron: "45 16 * * 1-5"
+  push:
+    branches: [main]   # se relance aussi à chaque déploiement (push sur main)
+  workflow_dispatch: {}   # pour tester manuellement depuis l'onglet Actions
+
+jobs:
+  telegram-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      - name: Installation de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installation des dépendances
+        run: pip install -r scripts/requirements.txt
+
+      - name: Générer et envoyer le rapport Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/telegram_daily_report.py
