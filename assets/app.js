@@ -235,9 +235,33 @@ const BRVM = (function () {
     el.innerHTML = `<span class="blink"></span> Séance différée 15 min — MAJ ${market.date} ${market.heure} · ${label}`;
   }
 
+  /* --------------------- Indice de défilement des tableaux -------------------- */
+  // Sur mobile, les tableaux larges défilent horizontalement (voir .table-shell
+  // dans style.css). Cette fonction masque automatiquement la flèche "→" une
+  // fois qu'il n'y a plus rien à faire défiler à droite, et la réaffiche si le
+  // contenu change (tri, filtre) ou si l'écran est redimensionné.
+  function initTableScrollHints() {
+    document.querySelectorAll(".table-shell").forEach(shell => {
+      const check = () => {
+        const atEnd = shell.scrollWidth - shell.clientWidth <= shell.scrollLeft + 2;
+        const scrollable = shell.scrollWidth > shell.clientWidth + 2;
+        shell.classList.toggle("at-end", atEnd || !scrollable);
+      };
+      check();
+      shell.addEventListener("scroll", check, { passive: true });
+      window.addEventListener("resize", check);
+      const table = shell.querySelector("table.data");
+      if (table && window.ResizeObserver) {
+        new ResizeObserver(check).observe(table);
+      }
+    });
+  }
+  document.addEventListener("DOMContentLoaded", initTableScrollHints);
+
   return {
     fmtFCFA, fmtNum, fmtPct, pctClass, tagClass, arrow, parseDateFR,
     renderTicker, actionsAsArray, obligationsAsArray, indicesAsArray, obligationType,
-    drawLineChart, makeSortableTable, computeOpportunityScore, markActiveNav, injectSessionPill
+    drawLineChart, makeSortableTable, computeOpportunityScore, markActiveNav, injectSessionPill,
+    initTableScrollHints
   };
 })();

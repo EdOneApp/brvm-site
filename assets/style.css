@@ -110,17 +110,42 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .card-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
 
 /* ---------------- Tables ---------------- */
-.table-shell{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
-table.data{ width:100%; border-collapse:collapse; font-size:.86rem; }
-table.data thead th{ text-align:left; padding:12px 14px; background:var(--surface-2); color:var(--muted); font-weight:600; font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; cursor:pointer; user-select:none; white-space:nowrap; position:sticky; top:0; }
+.table-shell{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; position:relative;
+}
+table.data{ width:100%; min-width:560px; border-collapse:collapse; font-size:.86rem; }
+table.data thead th{ text-align:left; padding:12px 14px; background:var(--surface-2); color:var(--muted); font-weight:600; font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; cursor:pointer; user-select:none; white-space:nowrap; position:sticky; top:0; z-index:1; }
 table.data thead th:hover{ color:var(--text); }
 table.data thead th .arrow{ opacity:.4; margin-left:4px; }
 table.data tbody td{ padding:11px 14px; border-top:1px solid var(--border); white-space:nowrap; }
 table.data tbody tr{ transition:background .1s; cursor:pointer; }
 table.data tbody tr:hover{ background:var(--surface-2); }
 table.data td.num, table.data th.num{ text-align:right; font-family:var(--font-mono); }
-.code-badge{ font-family:var(--font-mono); font-weight:700; color:var(--gold); letter-spacing:.02em; }
+
+/* Première colonne (code du titre) épinglée : reste visible pendant le
+   défilement horizontal, pour toujours savoir de quel titre il s'agit. */
+table.data th:first-child, table.data td:first-child{
+  position:sticky; left:0; z-index:2; background:var(--surface);
+  box-shadow: 2px 0 6px -2px rgba(0,0,0,.35);
+}
+table.data thead th:first-child{ z-index:3; background:var(--surface-2); }
+table.data tbody tr:hover td:first-child{ background:var(--surface-2); }
+
+/* Indice visuel qu'il y a plus de contenu à droite (dégradé + icône), visible
+   uniquement tant qu'on peut encore défiler — masqué automatiquement une
+   fois arrivé au bout grâce à la classe .at-end ajoutée en JS. */
+.table-shell::after{
+  content:"→"; position:sticky; top:0; right:0; float:right;
+  display:flex; align-items:center; justify-content:center;
+  width:26px; height:100%; min-height:44px; color:var(--gold);
+  background:linear-gradient(90deg, transparent, var(--surface) 70%);
+  pointer-events:none; font-size:.9rem;
+}
+.table-shell.at-end::after{ display:none; }
+
 .name-cell{ color:var(--text-dim); font-size:.82rem; max-width:260px; overflow:hidden; text-overflow:ellipsis; }
+.code-badge{ font-family:var(--font-mono); font-weight:700; color:var(--gold); letter-spacing:.02em; }
 
 .filters{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:center; }
 .filters input[type=search], .filters select{
@@ -187,7 +212,18 @@ table.data td.num, table.data th.num{ text-align:right; font-family:var(--font-m
 /* ---------------- Responsive ---------------- */
 @media (max-width: 720px){
   .foot-grid{ grid-template-columns:1fr; }
-  table.data{ font-size:.78rem; }
+  table.data{ font-size:.78rem; min-width:480px; }
+  table.data thead th, table.data tbody td{ padding:9px 10px; }
+  .name-cell{ max-width:150px; }
   .detail-hero{ flex-direction:column; align-items:flex-start; }
   .detail-price{ text-align:left; }
+  .hero{ padding:28px 0 14px; }
+  .board{ grid-template-columns:1fr 1fr; }
+  .board-cell .value{ font-size:1.4rem; }
+}
+
+@media (max-width: 420px){
+  .board{ grid-template-columns:1fr; }
+  table.data{ min-width:420px; }
+  .name-cell{ max-width:110px; }
 }
