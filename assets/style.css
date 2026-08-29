@@ -147,6 +147,22 @@ table.data tbody tr:hover td:first-child{ background:var(--surface-2); }
 .name-cell{ color:var(--text-dim); font-size:.82rem; max-width:260px; overflow:hidden; text-overflow:ellipsis; }
 .code-badge{ font-family:var(--font-mono); font-weight:700; color:var(--gold); letter-spacing:.02em; }
 
+/* ---------------- Cartes mobiles (remplacent les tableaux < 720px) ---------------- */
+/* Desktop : tableau visible, cartes cachées. Mobile : l'inverse. Les deux sont
+   remplies avec les mêmes données au même moment (voir app.js /
+   makeSortableTable), donc rien n'est jamais manquant, juste présenté
+   différemment selon l'écran — exactement le même principe que les cartes
+   d'indices de la page d'accueil. */
+.mobile-cards{ display:none; }
+.row-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; display:block; }
+.row-card-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+.row-card-title{ color:var(--text-dim); font-size:.82rem; margin-top:3px; }
+.row-card-price{ font-family:var(--font-mono); font-size:1.4rem; font-weight:600; margin-top:10px; }
+.row-card-extras{ display:grid; grid-template-columns:1fr 1fr; gap:8px 14px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
+.row-card-extras .field{ display:flex; flex-direction:column; gap:2px; }
+.row-card-extras .field .l{ color:var(--muted); font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; }
+.row-card-extras .field .v{ font-family:var(--font-mono); font-size:.86rem; }
+
 .filters{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:center; }
 .filters input[type=search], .filters select{
   background:var(--surface); border:1px solid var(--border-strong); color:var(--text);
@@ -212,18 +228,19 @@ table.data tbody tr:hover td:first-child{ background:var(--surface-2); }
 /* ---------------- Responsive ---------------- */
 @media (max-width: 720px){
   .foot-grid{ grid-template-columns:1fr; }
-  table.data{ font-size:.78rem; min-width:480px; }
-  table.data thead th, table.data tbody td{ padding:9px 10px; }
   .name-cell{ max-width:150px; }
   .detail-hero{ flex-direction:column; align-items:flex-start; }
   .detail-price{ text-align:left; }
   .hero{ padding:28px 0 14px; }
   .board{ grid-template-columns:1fr 1fr; }
   .board-cell .value{ font-size:1.4rem; }
+
+  /* Bascule tableau → cartes : plus de colonnes coupées ni de défilement
+     horizontal nécessaire, toutes les infos restent visibles empilées. */
+  .table-shell{ display:none; }
+  .mobile-cards{ display:grid; grid-template-columns:1fr; gap:12px; }
 }
 
 @media (max-width: 420px){
   .board{ grid-template-columns:1fr; }
-  table.data{ min-width:420px; }
-  .name-cell{ max-width:110px; }
 }

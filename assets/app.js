@@ -154,7 +154,7 @@ const BRVM = (function () {
   }
 
   /* --------------------------- Tri / filtre table ------------------------ */
-  function makeSortableTable({ tableEl, rows, columns, renderRow, initialSort }) {
+  function makeSortableTable({ tableEl, rows, columns, renderRow, initialSort, cardsEl, renderCard }) {
     let sortKey = initialSort ? initialSort.key : columns[0].key;
     let sortDir = initialSort ? initialSort.dir : "asc";
     let filterFn = () => true;
@@ -182,6 +182,12 @@ const BRVM = (function () {
           th.appendChild(arrowEl);
         }
       });
+      // Version cartes (mobile) : mêmes données, remplie en même temps que le
+      // tableau à chaque tri/filtre, pour ne jamais désynchroniser les deux vues.
+      if (cardsEl && renderCard) {
+        cardsEl.innerHTML = data.map(renderCard).join("") || `<div style="padding:24px;text-align:center;color:var(--muted)">Aucun résultat.</div>`;
+      }
+      initTableScrollHints();
     }
 
     tableEl.querySelectorAll("thead th[data-key]").forEach(th => {
@@ -195,6 +201,19 @@ const BRVM = (function () {
 
     apply();
     return { refresh: apply, setFilter: fn => { filterFn = fn; apply(); } };
+  }
+
+  // Gabarit de carte réutilisable pour l'affichage mobile (mêmes infos qu'une
+  // ligne de tableau, présentées empilées). `extras` : liste de [label, valeur].
+  function rowCard({ href, code, title, tag, tagCls, price, extras = [] }) {
+    return `<a href="${href}" class="card row-card">
+      <div class="row-card-head">
+        <div><span class="code-badge">${code}</span><div class="row-card-title">${title}</div></div>
+        ${tag !== undefined ? `<span class="tag ${tagCls}">${tag}</span>` : ""}
+      </div>
+      ${price !== undefined ? `<div class="row-card-price num">${price}</div>` : ""}
+      ${extras.length ? `<div class="row-card-extras">${extras.map(([l, v]) => `<div class="field"><span class="l">${l}</span><span class="v">${v}</span></div>`).join("")}</div>` : ""}
+    </a>`;
   }
 
   /* ------------------------- Moteur "Bons plans" ------------------------- */
@@ -261,7 +280,7 @@ const BRVM = (function () {
   return {
     fmtFCFA, fmtNum, fmtPct, pctClass, tagClass, arrow, parseDateFR,
     renderTicker, actionsAsArray, obligationsAsArray, indicesAsArray, obligationType,
-    drawLineChart, makeSortableTable, computeOpportunityScore, markActiveNav, injectSessionPill,
+    drawLineChart, makeSortableTable, rowCard, computeOpportunityScore, markActiveNav, injectSessionPill,
     initTableScrollHints
   };
 })();

@@ -60,6 +60,7 @@
       <thead><tr><th>Titre</th><th class="num">Cours</th><th class="num">Variation</th></tr></thead>
       <tbody></tbody>
     </table></div>
+    <div class="mobile-cards" id="topCards"></div>
   </section>
 
   <section class="section">
@@ -71,6 +72,7 @@
       <thead><tr><th>Titre</th><th class="num">Cours</th><th class="num">Variation</th></tr></thead>
       <tbody></tbody>
     </table></div>
+    <div class="mobile-cards" id="flopCards"></div>
   </section>
 
   <section class="section">
@@ -139,8 +141,12 @@ window.BRVM_DATA_READY.then(data => {
   const top5 = actions.slice(0,5);
   const flop5 = actions.slice(-5).reverse();
   const rowHtml = a => { const l=a.history.at(-1); return `<tr onclick="location.href='detail.html?type=action&code=${a.code}'"><td><span class="code-badge">${a.code}</span><br><span class="name-cell">${a.nom}</span></td><td class="num">${BRVM.fmtNum(l.cours)}</td><td class="num ${BRVM.pctClass(l.variation)}">${BRVM.arrow(l.variation)} ${BRVM.fmtPct(l.variation)}</td></tr>`; };
+  const cardHtml = a => { const l=a.history.at(-1); return BRVM.rowCard({ href:`detail.html?type=action&code=${a.code}`, code:a.code, title:a.nom, tag:`${BRVM.arrow(l.variation)} ${BRVM.fmtPct(l.variation)}`, tagCls:BRVM.tagClass(l.variation), price: BRVM.fmtNum(l.cours)+' FCFA' }); };
   document.querySelector('#topTable tbody').innerHTML = top5.map(rowHtml).join('');
   document.querySelector('#flopTable tbody').innerHTML = flop5.map(rowHtml).join('');
+  document.getElementById('topCards').innerHTML = top5.map(cardHtml).join('');
+  document.getElementById('flopCards').innerHTML = flop5.map(cardHtml).join('');
+  BRVM.initTableScrollHints();
 
   const idx = BRVM.indicesAsArray(data);
   document.getElementById('indicesGrid').innerHTML = idx.map(i => {

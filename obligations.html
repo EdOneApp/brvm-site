@@ -54,6 +54,7 @@
       <tbody></tbody>
     </table>
   </div>
+  <div class="mobile-cards" id="oblCards"></div>
 </main>
 
 <footer class="site-footer">
@@ -100,10 +101,25 @@ window.BRVM_DATA_READY.then(data => {
     </tr>`;
   }
 
+  function renderCard(r) {
+    const tagCls = r.typeKey === 'etat' ? 'tag-gold' : r.typeKey === 'titrisation' ? 'tag-lagoon' : 'tag-nul';
+    return BRVM.rowCard({
+      href: `detail.html?type=obligation&code=${encodeURIComponent(r.code)}`,
+      code: r.code, title: r.nom,
+      tag: r.type, tagCls,
+      price: BRVM.fmtFCFA(r.cours),
+      extras: [
+        ['Émission', r.dateEmission],
+        ['Coupon couru', BRVM.fmtNum(r.couponCouru,2) + ' FCFA']
+      ]
+    });
+  }
+
   const sortable = BRVM.makeSortableTable({
     tableEl: document.getElementById('oblTable'),
     rows, columns: [1,2,3,4,5,6],
-    renderRow, initialSort: { key: 'code', dir: 'asc' }
+    renderRow, initialSort: { key: 'code', dir: 'asc' },
+    cardsEl: document.getElementById('oblCards'), renderCard
   });
 
   let currentChip = 'all';

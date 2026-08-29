@@ -44,6 +44,7 @@
       <thead><tr><th>Secteur</th><th class="num">Clôture</th><th class="num">Var. jour</th><th class="num">Var. YTD</th></tr></thead>
       <tbody id="sectorBody"></tbody>
     </table></div>
+    <div class="mobile-cards" id="sectorCards"></div>
   </section>
 
   <section class="section">
@@ -80,10 +81,13 @@ window.BRVM_DATA_READY.then(data => {
   };
   document.getElementById('mainGrid').innerHTML = idx.filter(i=>i.categorie==='principal').map(card).join('');
   document.getElementById('trGrid').innerHTML = idx.filter(i=>i.categorie==='total-return').map(card).join('');
-  document.getElementById('sectorBody').innerHTML = idx.filter(i=>i.categorie==='sectoriel').sort((a,b)=>b.history.at(-1).variation-a.history.at(-1).variation).map(i => {
+  const sectoriels = idx.filter(i=>i.categorie==='sectoriel').sort((a,b)=>b.history.at(-1).variation-a.history.at(-1).variation);
+  document.getElementById('sectorBody').innerHTML = sectoriels.map(i => {
     const l = i.history.at(-1);
     return `<tr onclick="location.href='detail.html?type=indice&code=${i.code}'"><td>${i.nom}</td><td class="num">${BRVM.fmtNum(l.cloture,2)}</td><td class="num ${BRVM.pctClass(l.variation)}">${BRVM.arrow(l.variation)} ${BRVM.fmtPct(l.variation)}</td><td class="num ${BRVM.pctClass(l.ytd)}">${BRVM.fmtPct(l.ytd)}</td></tr>`;
   }).join('');
+  document.getElementById('sectorCards').innerHTML = sectoriels.map(card).join('');
+  BRVM.initTableScrollHints();
 });
 </script>
 </body>

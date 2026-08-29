@@ -54,6 +54,7 @@
       <tbody></tbody>
     </table>
   </div>
+  <div class="mobile-cards" id="actionsCards"></div>
 </main>
 
 <footer class="site-footer">
@@ -89,10 +90,25 @@ window.BRVM_DATA_READY.then(data => {
     </tr>`;
   }
 
+  function renderCard(r) {
+    return BRVM.rowCard({
+      href: `detail.html?type=action&code=${r.code}`,
+      code: r.code, title: r.nom,
+      tag: `${BRVM.arrow(r.variation)} ${BRVM.fmtPct(r.variation)}`, tagCls: BRVM.tagClass(r.variation),
+      price: BRVM.fmtNum(r.cours) + ' FCFA',
+      extras: [
+        ['PER', r.per ? BRVM.fmtNum(r.per,2) : '—'],
+        ['Capitalisation', BRVM.fmtFCFA(r.capGlob)],
+        ['Vol. échangé', BRVM.fmtFCFA(r.volValeur)]
+      ]
+    });
+  }
+
   const sortable = BRVM.makeSortableTable({
     tableEl: document.getElementById('actionsTable'),
     rows, columns: [1,2,3,4,5,6,7],
-    renderRow, initialSort: { key: 'capGlob', dir: 'desc' }
+    renderRow, initialSort: { key: 'capGlob', dir: 'desc' },
+    cardsEl: document.getElementById('actionsCards'), renderCard
   });
 
   document.getElementById('search').addEventListener('input', e => {
