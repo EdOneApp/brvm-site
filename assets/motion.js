@@ -1,5 +1,5 @@
 /**
- * motion.js — couche d'animation & micro-interactions de BRVM Live.
+ * motion.js — couche d'animation & micro-interactions de Xofa.
  * ------------------------------------------------------------------
  * Aucune dépendance externe (pas de Framer Motion, pas de CDN) : tout
  * est fait maison en Canvas / requestAnimationFrame / IntersectionObserver.

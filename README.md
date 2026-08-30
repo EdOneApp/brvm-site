@@ -1,4 +1,4 @@
-# BRVM Live
+# Xofa
 
 Tableau de bord non-officiel de la Bourse Régionale des Valeurs Mobilières
 (BRVM) : actions, obligations, indices, fiches détaillées avec historique,
@@ -58,7 +58,7 @@ n'auront qu'un seul point tant que l'étape 2 n'est pas faite.
 
 ### 2.4 Créer un dossier Drive et le partager avec le compte de service
 
-1. Dans votre Google Drive personnel, créez un dossier (ex. `BRVM Live`).
+1. Dans votre Google Drive personnel, créez un dossier (ex. `Xofa`).
 2. Partagez ce dossier avec l'adresse e-mail du compte de service
    (étape 2.2), rôle **Éditeur**.
 3. Copiez l'ID du dossier depuis l'URL
