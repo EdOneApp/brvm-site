@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>document.documentElement.classList.add("motion")</script>
 <title>Lexique BRVM — BRVM Live</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -14,6 +16,7 @@
   <div class="ticker" id="ticker"><div class="ticker-track"><span class="ticker-item">Chargement…</span></div></div>
   <div class="wrap topbar">
     <a href="index.html" class="brand"><span class="dot"></span><div>BRVM Live<small>Marché régional UEMOA</small></div></a>
+    <button class="nav-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false"><span></span></button>
     <nav class="nav">
       <a href="index.html" data-page="index.html">Tableau de bord</a>
       <a href="actions.html" data-page="actions.html">Actions</a>
@@ -28,12 +31,13 @@
 
 <main class="wrap">
   <div class="hero" style="padding-bottom:10px;">
-    <span class="eyebrow">Comprendre avant d'investir</span>
-    <h1 style="font-size:2rem;">Lexique BRVM</h1>
-    <p class="lead">Tous les termes techniques utilisés sur ce site et sur les publications officielles de la BRVM.</p>
+    <div class="hero-bg" aria-hidden="true"></div>
+    <span class="eyebrow" data-reveal style="--i:0">Comprendre avant d'investir</span>
+    <h1 style="font-size:2rem;" data-reveal>Lexique BRVM</h1>
+    <p class="lead" data-reveal style="--i:1">Tous les termes techniques utilisés sur ce site et sur les publications officielles de la BRVM.</p>
   </div>
-  <div class="filters"><input type="search" id="search" placeholder="Rechercher un terme…"></div>
-  <dl class="glossary-grid" id="glossaryGrid"></dl>
+  <div class="filters" data-reveal><input type="search" id="search" placeholder="Rechercher un terme…"></div>
+  <dl class="glossary-grid" id="glossaryGrid" data-reveal></dl>
 </main>
 
 <footer class="site-footer">
@@ -45,6 +49,7 @@
 <script src="assets/drive-client.js"></script>
 <script src="assets/glossary.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/motion.js" defer></script>
 <script>
 BRVM.markActiveNav();
 window.BRVM_DATA_READY.then(data => {

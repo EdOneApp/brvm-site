@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>document.documentElement.classList.add("motion")</script>
 <title>Bons plans du jour — BRVM Live</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -14,6 +16,7 @@
   <div class="ticker" id="ticker"><div class="ticker-track"><span class="ticker-item">Chargement…</span></div></div>
   <div class="wrap topbar">
     <a href="index.html" class="brand"><span class="dot"></span><div>BRVM Live<small>Marché régional UEMOA</small></div></a>
+    <button class="nav-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false"><span></span></button>
     <nav class="nav">
       <a href="index.html" data-page="index.html">Tableau de bord</a>
       <a href="actions.html" data-page="actions.html">Actions</a>
@@ -28,12 +31,13 @@
 
 <main class="wrap">
   <div class="hero" style="padding-bottom:10px;">
-    <span class="eyebrow">Score indicatif · 100% calculé, 0% conseil</span>
-    <h1 style="font-size:2rem;">Bons plans du jour</h1>
-    <p class="lead">Un classement des actions calculé à partir de trois signaux publics du jour. Ce n'est ni une recommandation d'achat, ni un signal fiable à lui seul : c'est un point de départ pour votre propre analyse.</p>
+    <div class="hero-bg" aria-hidden="true"></div>
+    <span class="eyebrow" data-reveal style="--i:0">Score indicatif · 100% calculé, 0% conseil</span>
+    <h1 style="font-size:2rem;" data-reveal>Bons plans du jour</h1>
+    <p class="lead" data-reveal style="--i:1">Un classement des actions calculé à partir de trois signaux publics du jour. Ce n'est ni une recommandation d'achat, ni un signal fiable à lui seul : c'est un point de départ pour votre propre analyse.</p>
   </div>
 
-  <div class="card" style="margin-bottom:24px;">
+  <div class="card" data-reveal style="margin-bottom:24px;">
     <h2 style="font-size:1.05rem;margin-bottom:12px;">Méthodologie — 100% transparente</h2>
     <div class="card-grid">
       <div>
@@ -52,11 +56,11 @@
     <div class="banner warn" style="margin-top:16px;margin-bottom:0;">⚠️ <div><b>Limite majeure aujourd'hui :</b> nous n'avons qu'un instantané d'une seule séance. Ce score deviendra bien plus pertinent une fois l'historique Drive alimenté sur plusieurs semaines (tendances, moyennes mobiles, volatilité réelle) — voir le README du dépôt pour l'activer.</div></div>
   </div>
 
-  <div class="list-shell">
+  <div class="list-shell" data-reveal>
     <div id="scoreList"></div>
   </div>
 
-  <section class="section">
+  <section class="section" data-reveal>
     <div class="section-head"><h2>Ce que ce score ne mesure PAS</h2></div>
     <div class="card-grid">
       <div class="card"><b>Dividendes</b><p style="color:var(--text-dim);font-size:.88rem;margin-top:6px;">Le rendement (dividende/cours) n'est pas publié dans les données de séance — consultez les rapports des sociétés cotées.</p></div>
@@ -74,6 +78,7 @@
 <script src="assets/data-seed.js"></script>
 <script src="assets/drive-client.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/motion.js" defer></script>
 <script>
 BRVM.markActiveNav();
 window.BRVM_DATA_READY.then(data => {

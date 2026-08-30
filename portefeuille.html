@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>document.documentElement.classList.add("motion")</script>
 <title>Mon portefeuille — BRVM Live</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -15,6 +17,7 @@
   <div class="ticker" id="ticker"><div class="ticker-track"><span class="ticker-item">Chargement…</span></div></div>
   <div class="wrap topbar">
     <a href="index.html" class="brand"><span class="dot"></span><div>BRVM Live<small>Marché régional UEMOA</small></div></a>
+    <button class="nav-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false"><span></span></button>
     <nav class="nav">
       <a href="index.html" data-page="index.html">Tableau de bord</a>
       <a href="actions.html" data-page="actions.html">Actions</a>
@@ -29,18 +32,19 @@
 
 <main class="wrap">
   <div class="hero" style="padding-bottom:10px;">
-    <span class="eyebrow">Privé · stocké dans VOTRE Google Drive</span>
-    <h1 style="font-size:2rem;">Mon portefeuille</h1>
-    <p class="lead">Suivez une liste de titres. Vos données sont enregistrées dans un fichier privé de votre propre Google Drive (dossier caché de l'application) — ce site n'y a accès qu'une fois que vous vous connectez, et personne d'autre ne peut les voir.</p>
+    <div class="hero-bg" aria-hidden="true"></div>
+    <span class="eyebrow" data-reveal style="--i:0">Privé · stocké dans VOTRE Google Drive</span>
+    <h1 style="font-size:2rem;" data-reveal>Mon portefeuille</h1>
+    <p class="lead" data-reveal style="--i:1">Suivez une liste de titres. Vos données sont enregistrées dans un fichier privé de votre propre Google Drive (dossier caché de l'application) — ce site n'y a accès qu'une fois que vous vous connectez, et personne d'autre ne peut les voir.</p>
   </div>
 
-  <div id="authArea" class="card" style="margin-bottom:24px;"></div>
+  <div id="authArea" class="card" data-reveal style="margin-bottom:24px;"></div>
 
   <div id="portfolioArea" style="display:none;">
     <div class="section-head">
       <h2>Ajouter un titre</h2>
     </div>
-    <div class="filters">
+    <div class="filters" data-reveal>
       <select id="addSelect"></select>
       <button class="btn btn-primary" id="addBtn">+ Ajouter au portefeuille</button>
     </div>
@@ -63,6 +67,7 @@
 <script src="assets/drive-client.js"></script>
 <script src="assets/drive-portfolio.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/motion.js" defer></script>
 <script>
 BRVM.markActiveNav();
 let ALL_DATA = null;

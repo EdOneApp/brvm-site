@@ -3,11 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>document.documentElement.classList.add("motion")</script>
 <title>BRVM Live — Marché boursier régional en direct (UEMOA)</title>
 <meta name="description" content="Actions, obligations, indices et capitalisation de la Bourse Régionale des Valeurs Mobilières (BRVM), avec historique, fiches détaillées et sélection du jour.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230A1120%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22%23E0AC4C%22>B</text></svg>">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%23000000%22/><text x=%2250%22 y=%2270%22 font-size=%2264%22 font-family=%22monospace%22 font-weight=%22bold%22 text-anchor=%22middle%22 fill=%22%23f0b24b%22>B</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -16,6 +19,7 @@
   <div class="ticker" id="ticker"><div class="ticker-track"><span class="ticker-item">Chargement du marché…</span></div></div>
   <div class="wrap topbar">
     <a href="index.html" class="brand"><span class="dot"></span><div>BRVM Live<small>Marché régional UEMOA</small></div></a>
+    <button class="nav-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false"><span></span></button>
     <nav class="nav">
       <a href="index.html" data-page="index.html">Tableau de bord</a>
       <a href="actions.html" data-page="actions.html">Actions</a>
@@ -31,16 +35,17 @@
 <main class="wrap">
 
   <section class="hero">
-    <span class="eyebrow">Bourse Régionale des Valeurs Mobilières · 8 pays UEMOA</span>
-    <h1>Le marché boursier régional, en un coup d'œil.</h1>
-    <p class="lead">47 sociétés cotées à Abidjan, plus de 200 lignes obligataires, 11 indices sectoriels — données publiques de brvm.org, historisées automatiquement.</p>
+    <div class="hero-bg" aria-hidden="true"></div>
+    <span class="eyebrow" data-reveal style="--i:0">Bourse Régionale des Valeurs Mobilières · 8 pays UEMOA</span>
+    <h1 data-reveal style="--i:1">Le marché boursier régional, en un coup d'œil.</h1>
+    <p class="lead" data-reveal style="--i:2">47 sociétés cotées à Abidjan, plus de 200 lignes obligataires, 11 indices sectoriels — données publiques de brvm.org, historisées automatiquement.</p>
     <div id="sessionPill" class="session-pill" style="margin-top:18px;display:inline-flex;"></div>
-    <div id="board" class="board"></div>
+    <div id="board" class="board" style="margin-top:28px;"></div>
   </section>
 
   <div id="driveBanner"></div>
 
-  <section class="card" style="margin:10px 0 30px; font-size:.85rem; color:var(--text-dim);">
+  <section class="card" data-reveal style="margin:10px 0 30px; font-size:.85rem; color:var(--text-dim);">
     <b style="color:var(--text)">À propos de ce site</b> — BRVM Live est un tableau de bord non-officiel
     présentant des données publiques de la Bourse Régionale des Valeurs Mobilières (actions, obligations,
     indices). La fonctionnalité optionnelle « <a href="portefeuille.html" style="color:var(--gold)">Mon
@@ -51,7 +56,7 @@
     nos <a href="conditions-utilisation.html" style="color:var(--gold)">conditions d'utilisation</a>.
   </section>
 
-  <section class="section">
+  <section class="section" data-reveal>
     <div class="section-head">
       <h2>Top 5 du jour</h2>
       <div class="desc">Plus fortes hausses</div>
@@ -63,7 +68,7 @@
     <div class="mobile-cards" id="topCards"></div>
   </section>
 
-  <section class="section">
+  <section class="section" data-reveal>
     <div class="section-head">
       <h2>Flop 5 du jour</h2>
       <div class="desc">Plus fortes baisses</div>
@@ -75,7 +80,7 @@
     <div class="mobile-cards" id="flopCards"></div>
   </section>
 
-  <section class="section">
+  <section class="section" data-reveal>
     <div class="section-head">
       <h2>Indices</h2>
       <div class="desc"><a href="indices.html" style="color:var(--gold)">Voir tous les indices sectoriels →</a></div>
@@ -83,7 +88,7 @@
     <div class="card-grid" id="indicesGrid"></div>
   </section>
 
-  <section class="section">
+  <section class="section" data-reveal>
     <div class="card" style="background:linear-gradient(135deg,var(--surface-2),var(--surface)); display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;">
       <div>
         <h2 style="margin-bottom:6px;">Bons plans du jour</h2>
@@ -119,6 +124,7 @@
 <script src="assets/data-seed.js"></script>
 <script src="assets/drive-client.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/motion.js" defer></script>
 <script>
 BRVM.markActiveNav();
 window.BRVM_DATA_READY.then(data => {

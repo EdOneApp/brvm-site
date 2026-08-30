@@ -6,6 +6,11 @@
 
 const BRVM = (function () {
 
+  // Signale que JavaScript est actif : la CSS n'arme les animations
+  // d'apparition ([data-reveal]) que sous html.js — sans JS, tout le
+  // contenu reste visible.
+  document.documentElement.classList.add("js");
+
   /* ---------------------------- Formatage ---------------------------- */
   function fmtFCFA(n, { decimals = 0 } = {}) {
     if (n === null || n === undefined || Number.isNaN(n)) return "—";
@@ -70,7 +75,7 @@ const BRVM = (function () {
 
   /* --------------------------- Mini line chart -------------------------- */
   // Canvas fait-maison (pas de dépendance CDN). history = [{date, value}]
-  function drawLineChart(canvas, points, { color = "#E0AC4C", fill = true, label = "", height = 220 } = {}) {
+  function drawLineChart(canvas, points, { color = "#f0b24b", fill = true, label = "", height = 220 } = {}) {
     if (!canvas || !points || !points.length) return;
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
@@ -98,10 +103,10 @@ const BRVM = (function () {
     const y = v => H - pad.b - ((v - min) / spanY) * (H - pad.t - pad.b);
 
     // grille horizontale
-    ctx.strokeStyle = "rgba(255,255,255,.07)";
+    ctx.strokeStyle = "rgba(255,255,255,.06)";
     ctx.lineWidth = 1;
     ctx.font = "11px 'IBM Plex Mono', monospace";
-    ctx.fillStyle = "rgba(183,192,214,.8)";
+    ctx.fillStyle = "rgba(167,171,184,.75)";
     const steps = 4;
     for (let i = 0; i <= steps; i++) {
       const v = min + (spanY * i) / steps;
@@ -125,20 +130,27 @@ const BRVM = (function () {
       ctx.fill();
     }
 
-    // ligne
+    // ligne (avec halo lumineux)
     ctx.beginPath();
     points.forEach((p, i) => { const px = x(i), py = y(p.value); i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); });
     ctx.strokeStyle = color;
-    ctx.lineWidth = 2.2;
+    ctx.lineWidth = 2.4;
     ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 12;
     ctx.stroke();
+    ctx.shadowBlur = 0;
 
     // points
     points.forEach((p, i) => {
+      const isLast = i === points.length - 1;
       ctx.beginPath();
-      ctx.arc(x(i), y(p.value), points.length > 40 ? 0 : 3, 0, Math.PI * 2);
-      ctx.fillStyle = color;
+      ctx.arc(x(i), y(p.value), isLast ? 4 : (points.length > 40 ? 0 : 3), 0, Math.PI * 2);
+      ctx.fillStyle = isLast ? "#ffffff" : color;
+      if (isLast) { ctx.shadowColor = color; ctx.shadowBlur = 14; }
       ctx.fill();
+      ctx.shadowBlur = 0;
     });
 
     // labels de dates (premier, milieu, dernier)
@@ -277,10 +289,105 @@ const BRVM = (function () {
   }
   document.addEventListener("DOMContentLoaded", initTableScrollHints);
 
+  /* --------------------- Révélation au défilement --------------------- */
+  // Anime l'apparition de tout élément portant l'attribut [data-reveal],
+  // y compris le contenu injecté APRÈS coup par les scripts de page
+  // (tableaux, cartes d'indices...) grâce à un MutationObserver.
+  let _revealIO = null;
+  function _observeReveal(el) {
+    if (!_revealIO || el.dataset.revealBound) return;
+    el.dataset.revealBound = "1";
+    _revealIO.observe(el);
+  }
+  function initReveal() {
+    if (!("IntersectionObserver" in window)) {
+      document.querySelectorAll("[data-reveal]").forEach(el => el.classList.add("is-visible"));
+      return;
+    }
+    _revealIO = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          _revealIO.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
+
+    document.querySelectorAll("[data-reveal]").forEach(_observeReveal);
+
+    new MutationObserver(muts => {
+      muts.forEach(m => m.addedNodes.forEach(node => {
+        if (node.nodeType !== 1) return;
+        if (node.matches && node.matches("[data-reveal]")) _observeReveal(node);
+        node.querySelectorAll && node.querySelectorAll("[data-reveal]").forEach(_observeReveal);
+      }));
+    }).observe(document.body, { childList: true, subtree: true });
+
+    // Filet de sécurité : si l'observer n'a rien déclenché (onglet en
+    // arrière-plan au chargement, navigateur exotique…), on révèle tout
+    // au bout de 2,4 s pour ne jamais laisser de contenu masqué.
+    setTimeout(() => {
+      document.querySelectorAll("[data-reveal]:not(.is-visible)").forEach(el => {
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) el.classList.add("is-visible");
+      });
+    }, 2400);
+  }
+
+  /* ------------------------- Menu mobile ------------------------- */
+  function initNav() {
+    const toggle = document.querySelector(".nav-toggle");
+    if (!toggle) return;
+    const close = () => document.body.classList.remove("nav-open");
+    toggle.addEventListener("click", () => document.body.classList.toggle("nav-open"));
+    document.querySelectorAll(".nav a").forEach(a => a.addEventListener("click", close));
+    document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+    document.addEventListener("click", e => {
+      if (document.body.classList.contains("nav-open") &&
+          !e.target.closest(".nav") && !e.target.closest(".nav-toggle")) close();
+    });
+  }
+
+  /* ------------------- Ombre d'en-tête au défilement ------------------- */
+  function initHeaderScroll() {
+    const header = document.querySelector(".site-header");
+    if (!header) return;
+    const onScroll = () => header.classList.toggle("scrolled", window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
+
+  /* ---------------------- Compteur animé (count-up) --------------------- */
+  // Anime un nombre de 0 à sa valeur finale. Usage : BRVM.countUp(el, 1234, {decimals:2, suffix:' %'}).
+  function countUp(el, target, { decimals = 0, duration = 900, prefix = "", suffix = "" } = {}) {
+    if (!el || Number.isNaN(target)) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      el.textContent = prefix + fmtNum(target, decimals) + suffix; return;
+    }
+    const start = performance.now();
+    const step = (now) => {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = prefix + fmtNum(target * eased, decimals) + suffix;
+      if (t < 1) requestAnimationFrame(step);
+      else el.textContent = prefix + fmtNum(target, decimals) + suffix;
+    };
+    requestAnimationFrame(step);
+  }
+
+  function initAll() {
+    markActiveNav();
+    initNav();
+    initHeaderScroll();
+    initReveal();
+    initTableScrollHints();
+  }
+  document.addEventListener("DOMContentLoaded", initAll);
+
   return {
     fmtFCFA, fmtNum, fmtPct, pctClass, tagClass, arrow, parseDateFR,
     renderTicker, actionsAsArray, obligationsAsArray, indicesAsArray, obligationType,
     drawLineChart, makeSortableTable, rowCard, computeOpportunityScore, markActiveNav, injectSessionPill,
-    initTableScrollHints
+    initTableScrollHints, initReveal, initNav, initHeaderScroll, countUp
   };
 })();

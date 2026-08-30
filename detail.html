@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>document.documentElement.classList.add("motion")</script>
 <title id="pageTitle">Fiche titre — BRVM Live</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -14,6 +16,7 @@
   <div class="ticker" id="ticker"><div class="ticker-track"><span class="ticker-item">Chargement…</span></div></div>
   <div class="wrap topbar">
     <a href="index.html" class="brand"><span class="dot"></span><div>BRVM Live<small>Marché régional UEMOA</small></div></a>
+    <button class="nav-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false"><span></span></button>
     <nav class="nav">
       <a href="index.html" data-page="index.html">Tableau de bord</a>
       <a href="actions.html" data-page="actions.html">Actions</a>
@@ -39,6 +42,7 @@
 <script src="assets/drive-client.js"></script>
 <script src="assets/glossary.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/motion.js" defer></script>
 <script>
 BRVM.markActiveNav();
 
@@ -95,13 +99,13 @@ window.BRVM_DATA_READY.then(data => {
         </div>
       </div>
 
-      <div class="chart-shell" style="margin:20px 0;">
+      <div class="chart-shell" data-reveal style="margin:20px 0;">
         <canvas id="chart" height="240"></canvas>
         <div class="chart-note" id="chartNote"></div>
       </div>
 
       <div class="section-head" style="margin-top:10px;"><h2 style="font-size:1.1rem;">Indicateurs clés</h2></div>
-      <div class="metric-grid">
+      <div class="metric-grid" data-reveal>
         ${metricCell("PER", last.per ? BRVM.fmtNum(last.per,2) : "n/d — bénéfices négatifs ou non publiés", "PER")}
         ${metricCell("Capitalisation globale", BRVM.fmtFCFA(last.capGlob), "Capitalisation boursière globale")}
         ${metricCell("Capitalisation flottante", BRVM.fmtFCFA(last.capFlott), "Capitalisation flottante")}
@@ -114,7 +118,7 @@ window.BRVM_DATA_READY.then(data => {
       </div>
 
       <div class="section-head" style="margin-top:30px;"><h2 style="font-size:1.1rem;">Calculs dérivés</h2></div>
-      <div class="card-grid">
+      <div class="card-grid" data-reveal>
         <div class="card"><div class="l" style="color:var(--muted);font-size:.8rem;">Valeur boursière d'1% du capital</div><div class="num" style="font-size:1.3rem;margin-top:6px;">${BRVM.fmtFCFA(last.capGlob/100)}</div></div>
         <div class="card"><div class="l" style="color:var(--muted);font-size:.8rem;">Prix moyen pondéré de la séance</div><div class="num" style="font-size:1.3rem;margin-top:6px;">${last.volTitres ? BRVM.fmtNum(last.volValeur/last.volTitres,0)+" FCFA" : "n/d"}</div><div style="color:var(--muted);font-size:.72rem;margin-top:4px;">= Valeur échangée ÷ Titres échangés</div></div>
         <div class="card"><div class="l" style="color:var(--muted);font-size:.8rem;">Bénéfice net par action estimé</div><div class="num" style="font-size:1.3rem;margin-top:6px;">${last.per ? BRVM.fmtNum(last.cours/last.per,0)+" FCFA" : "n/d"}</div><div style="color:var(--muted);font-size:.72rem;margin-top:4px;">= Cours ÷ PER</div></div>
@@ -141,13 +145,13 @@ window.BRVM_DATA_READY.then(data => {
         </div>
       </div>
 
-      <div class="chart-shell" style="margin:20px 0;">
+      <div class="chart-shell" data-reveal style="margin:20px 0;">
         <canvas id="chart" height="240"></canvas>
         <div class="chart-note" id="chartNote"></div>
       </div>
 
       <div class="section-head" style="margin-top:10px;"><h2 style="font-size:1.1rem;">Caractéristiques de l'émprunt</h2></div>
-      <div class="metric-grid">
+      <div class="metric-grid" data-reveal>
         ${metricCell("Coupon nominal", coupon ? coupon.replace('.',',')+" %" : "n/d", "Coupon")}
         ${metricCell("Période", years ? years[1]+" – "+years[2] : "n/d", "Maturité / Échéance")}
         ${metricCell("Date d'émission", entity.dateEmission || "n/d", null)}
@@ -178,12 +182,12 @@ window.BRVM_DATA_READY.then(data => {
         </div>
       </div>
 
-      <div class="chart-shell" style="margin:20px 0;">
+      <div class="chart-shell" data-reveal style="margin:20px 0;">
         <canvas id="chart" height="240"></canvas>
         <div class="chart-note" id="chartNote"></div>
       </div>
 
-      <div class="metric-grid">
+      <div class="metric-grid" data-reveal>
         ${metricCell("Clôture précédente", BRVM.fmtNum(last.cloturePrec,2), null)}
         ${metricCell("Variation du jour", BRVM.fmtPct(last.variation), "Variation du jour")}
         ${metricCell("Variation YTD", BRVM.fmtPct(last.ytd), "Variation YTD (Year-To-Date)")}
